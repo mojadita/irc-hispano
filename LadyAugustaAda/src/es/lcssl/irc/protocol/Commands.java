@@ -263,4 +263,7 @@ public enum Commands {
 	Commands(Responses[] resp) {
 		m_resp = resp;
 	}
+	Responses[] getResponses() {
+		return m_resp;
+	}
 }
