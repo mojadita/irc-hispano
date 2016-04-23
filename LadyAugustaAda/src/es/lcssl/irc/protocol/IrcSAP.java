@@ -8,9 +8,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.nio.charset.Charset;
-
-import javax.security.auth.callback.TextInputCallback;
 
 /**
  * @author luis
@@ -18,20 +15,24 @@ import javax.security.auth.callback.TextInputCallback;
  */
 public class IrcSAP {
 	
+	private enum Status {
+		INITIAL, NICK, IDENT, HOST, COMMAND, MIDDLE, FINAL, CR,
+	}
+	
 	Socket 				m_socket;
 	InputStreamReader 	m_istream;
+	Monitor				m_monitor;
 	
 	private class Monitor extends Thread {
 
 		@Override
 		public void run() {
-			StringBuilder sb = new StringBuilder();
 			int c;
+			Status st = Status.INITIAL;
 			try {
 				while ((c = m_istream.read()) != -1) {
 					final char ch = (char) c;
-					switch (ch) {
-					
+					switch (st) {
 					}
 				}
 			} catch (IOException e) {
@@ -43,13 +44,13 @@ public class IrcSAP {
 	}
 	
 	
-	public IrcSAP(String host, int port, Charset cs)
+	public IrcSAP(String host, int port)
 			throws UnknownHostException, IOException 
 	{
 		m_socket = new Socket(host, port);
 		m_istream = new InputStreamReader(
-				new BufferedInputStream(
-						m_socket.getInputStream()),
-						cs);
+				new BufferedInputStream(m_socket.getInputStream()));
+		m_monitor = new Monitor();
+		m_monitor.start();
 	}
 }
