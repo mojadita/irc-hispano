@@ -99,7 +99,7 @@ public class TestChannel {
 	@Test(expected=IllegalArgumentException.class)
 	public void testConstructorStringIllegal() {
 		@SuppressWarnings("unused")
-		Channel c = new Channel("ABCDEF");
+		Channel c = new Channel("|ABCDEF");
 	}
 
 	@Test

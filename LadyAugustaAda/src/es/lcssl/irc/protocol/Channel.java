@@ -50,7 +50,7 @@ public class Channel extends Common {
 		case '+': m_type = TargetType.MODELESS_CHANNEL; break;
 		case '&': m_type = TargetType.LOCAL_CHANNEL; break;
 		default: throw new IllegalArgumentException(
-				"Illegal char " + first + " as channel type");
+				"Illegal char '" + first + "' as channel type");
 		}
 		m_id = name.substring(1);
 	}
