@@ -15,6 +15,11 @@ package es.lcssl.irc.protocol;
  *
  */
 public enum Response {
+	RPL_WELCOME(1),
+	RPL_YOURHOST(2),
+	RPL_CREATED(3),
+	RPL_MYINFO(4),
+	RPL_BOUNCE(5),
 	
 	RPL_TRACELINK(200),
 	RPL_TRACECONNECTING(201),
@@ -158,7 +163,7 @@ public enum Response {
 	
 	Response(int value) {
 		m_protocolValue = value;
-		m_stringValue = new Integer(value).toString();
+		m_stringValue = String.format("%03d", value);
 	}
 
 	/**

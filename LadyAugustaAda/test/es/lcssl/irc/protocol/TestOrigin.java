@@ -289,6 +289,12 @@ public class TestOrigin {
 		assertFalse(o.isServer());
 		assertFalse(o.isOther());
 	}
+	
+	@Test
+	public void testProtocolValue() {
+		Origin o = new Origin("mojadita", "kania", "te.llevo.en.mi.corazon");
+		assertEquals("mojadita", o.protocolValue());
+	}
 
 	@Test
 	public void testToString() {

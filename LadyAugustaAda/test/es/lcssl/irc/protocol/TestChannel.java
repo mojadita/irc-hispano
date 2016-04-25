@@ -9,11 +9,9 @@
 package es.lcssl.irc.protocol;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
 
 import es.lcssl.irc.protocol.Channel.TargetType;
 
@@ -100,6 +98,7 @@ public class TestChannel {
 	
 	@Test(expected=IllegalArgumentException.class)
 	public void testConstructorStringIllegal() {
+		@SuppressWarnings("unused")
 		Channel c = new Channel("ABCDEF");
 	}
 
@@ -129,5 +128,4 @@ public class TestChannel {
 		assertEquals(TargetType.LOCAL_CHANNEL, m_instance.getType());
 		assertEquals("&ABCDEF", m_instance.protocolValue());
 	}
-
 }
