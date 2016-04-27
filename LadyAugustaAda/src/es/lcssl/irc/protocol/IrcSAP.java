@@ -26,6 +26,7 @@ public class IrcSAP extends Thread {
 	public static final String PROPERTY_IDENT = "user.ident";
 	public static final String PROPERTY_NAME = "user.name";
 	public static final String PROPERTY_MODES = "user.modes";
+	public static final String PROPERTY_PASSWORD = "user.password";
 	
 	private enum Status {
 		/**
