@@ -17,262 +17,262 @@ package es.lcssl.irc.protocol;
  *
  */
 public enum RequestCode {
-	PASS(new Response[] {
-			Response.ERR_NEEDMOREPARAMS, 
-			Response.ERR_ALREADYREGISTERED,
+	PASS(new ResponseCode[] {
+			ResponseCode.ERR_NEEDMOREPARAMS, 
+			ResponseCode.ERR_ALREADYREGISTERED,
 	}),
-	NICK(new Response[] {
-			Response.ERR_NONICKNAMEGIVEN, 
-			Response.ERR_ERRONEUSNICKNAME, 
-			Response.ERR_NICKNAMEINUSE, 
-			Response.ERR_NICKCOLLISION,
+	NICK(new ResponseCode[] {
+			ResponseCode.ERR_NONICKNAMEGIVEN, 
+			ResponseCode.ERR_ERRONEUSNICKNAME, 
+			ResponseCode.ERR_NICKNAMEINUSE, 
+			ResponseCode.ERR_NICKCOLLISION,
 	}),
-	USER(new Response[] {
-			Response.ERR_NEEDMOREPARAMS,
-			Response.ERR_ALREADYREGISTERED,
+	USER(new ResponseCode[] {
+			ResponseCode.ERR_NEEDMOREPARAMS,
+			ResponseCode.ERR_ALREADYREGISTERED,
 	}),
-	SERVER(new Response[] {
-			Response.ERR_ALREADYREGISTERED,
+	SERVER(new ResponseCode[] {
+			ResponseCode.ERR_ALREADYREGISTERED,
 	}),
-	OPER(new Response[] {
-			Response.RPL_YOUREOPER,
+	OPER(new ResponseCode[] {
+			ResponseCode.RPL_YOUREOPER,
 			
-			Response.ERR_NEEDMOREPARAMS,
-			Response.ERR_NOOPERHOST,
-			Response.ERR_PASSWDMISMATCH,
+			ResponseCode.ERR_NEEDMOREPARAMS,
+			ResponseCode.ERR_NOOPERHOST,
+			ResponseCode.ERR_PASSWDMISMATCH,
 	}),
-	QUIT(new Response[] {}),
-	SQUIT(new Response[] {
-			Response.ERR_NOPRIVILEGES,
-			Response.ERR_NOSUCHSEVER,
+	QUIT(new ResponseCode[] {}),
+	SQUIT(new ResponseCode[] {
+			ResponseCode.ERR_NOPRIVILEGES,
+			ResponseCode.ERR_NOSUCHSEVER,
 	}),
-	JOIN(new Response[] {
-			Response.RPL_TOPIC,
+	JOIN(new ResponseCode[] {
+			ResponseCode.RPL_TOPIC,
 
-			Response.ERR_NEEDMOREPARAMS,
-			Response.ERR_INVITEONLYCHAN,
-			Response.ERR_CHANNELISFULL,
-			Response.ERR_NOSUCHCHANNEL,
-			Response.ERR_BANNEDFROMCHAN,
-			Response.ERR_BADCHANNELKEY,
-			Response.ERR_BADCHANMASK,
-			Response.ERR_TOOMANYCHANNELS,
+			ResponseCode.ERR_NEEDMOREPARAMS,
+			ResponseCode.ERR_INVITEONLYCHAN,
+			ResponseCode.ERR_CHANNELISFULL,
+			ResponseCode.ERR_NOSUCHCHANNEL,
+			ResponseCode.ERR_BANNEDFROMCHAN,
+			ResponseCode.ERR_BADCHANNELKEY,
+			ResponseCode.ERR_BADCHANMASK,
+			ResponseCode.ERR_TOOMANYCHANNELS,
 	}),
-	PART(new Response[] {
-			Response.ERR_NEEDMOREPARAMS,
-			Response.ERR_NOTONCHANNEL,
-			Response.ERR_NOSUCHCHANNEL,
+	PART(new ResponseCode[] {
+			ResponseCode.ERR_NEEDMOREPARAMS,
+			ResponseCode.ERR_NOTONCHANNEL,
+			ResponseCode.ERR_NOSUCHCHANNEL,
 	}),
-	MODE(new Response[] {
-			Response.RPL_BANLIST,
-			Response.RPL_CHANNELMODEIS,
-			Response.RPL_ENDOFBANLIST,
-			Response.RPL_UMODEIS,
+	MODE(new ResponseCode[] {
+			ResponseCode.RPL_BANLIST,
+			ResponseCode.RPL_CHANNELMODEIS,
+			ResponseCode.RPL_ENDOFBANLIST,
+			ResponseCode.RPL_UMODEIS,
 
-			Response.ERR_NEEDMOREPARAMS,
-			Response.ERR_CHANOPRIVSNEEDED,
-			Response.ERR_NOTONCHANNEL,
-			Response.ERR_UNKNOWNMODE,
-			Response.ERR_USERSDONTMATCH,
-			Response.ERR_UMODEUNKNOWNFLAG,
-			Response.ERR_NOSUCHNICK,
-			Response.ERR_KEYSET,
-			Response.ERR_NOSUCHCHANNEL,
+			ResponseCode.ERR_NEEDMOREPARAMS,
+			ResponseCode.ERR_CHANOPRIVSNEEDED,
+			ResponseCode.ERR_NOTONCHANNEL,
+			ResponseCode.ERR_UNKNOWNMODE,
+			ResponseCode.ERR_USERSDONTMATCH,
+			ResponseCode.ERR_UMODEUNKNOWNFLAG,
+			ResponseCode.ERR_NOSUCHNICK,
+			ResponseCode.ERR_KEYSET,
+			ResponseCode.ERR_NOSUCHCHANNEL,
 	}),
-	TOPIC(new Response[] {
-			Response.RPL_NOTOPIC,
-			Response.RPL_TOPIC,
+	TOPIC(new ResponseCode[] {
+			ResponseCode.RPL_NOTOPIC,
+			ResponseCode.RPL_TOPIC,
 
-			Response.ERR_NEEDMOREPARAMS,
-			Response.ERR_NOTONCHANNEL,
-			Response.ERR_CHANOPRIVSNEEDED,
+			ResponseCode.ERR_NEEDMOREPARAMS,
+			ResponseCode.ERR_NOTONCHANNEL,
+			ResponseCode.ERR_CHANOPRIVSNEEDED,
 	}),
-	NAMES(new Response[] {
-			Response.RPL_NAMREPLY,
-			Response.RPL_ENDOFNAMES,
+	NAMES(new ResponseCode[] {
+			ResponseCode.RPL_NAMREPLY,
+			ResponseCode.RPL_ENDOFNAMES,
 	}),
-	LIST(new Response[] {
-			Response.ERR_NOSUCHSEVER,
-			Response.RPL_LISTSTART,
-			Response.RPL_LIST,
-			Response.RPL_LISTEND,
+	LIST(new ResponseCode[] {
+			ResponseCode.ERR_NOSUCHSEVER,
+			ResponseCode.RPL_LISTSTART,
+			ResponseCode.RPL_LIST,
+			ResponseCode.RPL_LISTEND,
 	}),
-	INVITE(new Response[] {
-			Response.ERR_NEEDMOREPARAMS,
-			Response.ERR_NOSUCHNICK,
-			Response.ERR_NOTONCHANNEL,
-			Response.ERR_USERONCHANNEL,
-			Response.ERR_CHANOPRIVSNEEDED,
-			Response.RPL_INVITING,
-			Response.RPL_AWAY,
+	INVITE(new ResponseCode[] {
+			ResponseCode.ERR_NEEDMOREPARAMS,
+			ResponseCode.ERR_NOSUCHNICK,
+			ResponseCode.ERR_NOTONCHANNEL,
+			ResponseCode.ERR_USERONCHANNEL,
+			ResponseCode.ERR_CHANOPRIVSNEEDED,
+			ResponseCode.RPL_INVITING,
+			ResponseCode.RPL_AWAY,
 	}),
-	KICK(new Response[] {
-			Response.ERR_NEEDMOREPARAMS,
-			Response.ERR_NOSUCHCHANNEL,
-			Response.ERR_BADCHANMASK,
-			Response.ERR_CHANOPRIVSNEEDED,
-			Response.ERR_NOTONCHANNEL,
+	KICK(new ResponseCode[] {
+			ResponseCode.ERR_NEEDMOREPARAMS,
+			ResponseCode.ERR_NOSUCHCHANNEL,
+			ResponseCode.ERR_BADCHANMASK,
+			ResponseCode.ERR_CHANOPRIVSNEEDED,
+			ResponseCode.ERR_NOTONCHANNEL,
 	}),
-	VERSION(new Response[] {
-			Response.ERR_NOSUCHSEVER,
-			Response.RPL_VERSION,
+	VERSION(new ResponseCode[] {
+			ResponseCode.ERR_NOSUCHSEVER,
+			ResponseCode.RPL_VERSION,
 	}),
-	STATS(new Response[] {
-			Response.ERR_NOSUCHSEVER,
-			Response.RPL_STATSCLINE,
-			Response.RPL_STATSNLINE,
-			Response.RPL_STATSILINE,
-			Response.RPL_STATSKLINE,
-			Response.RPL_STATSQLINE,
-			Response.RPL_STATSLLINE,
-			Response.RPL_STATSLINKINFO,
-			Response.RPL_STATSUPTIME,
-			Response.RPL_STATSCOMMANDS,
-			Response.RPL_STATSOLINE,
-			Response.RPL_STATSHLINE,
-			Response.RPL_ENDOFSTATS,
+	STATS(new ResponseCode[] {
+			ResponseCode.ERR_NOSUCHSEVER,
+			ResponseCode.RPL_STATSCLINE,
+			ResponseCode.RPL_STATSNLINE,
+			ResponseCode.RPL_STATSILINE,
+			ResponseCode.RPL_STATSKLINE,
+			ResponseCode.RPL_STATSQLINE,
+			ResponseCode.RPL_STATSLLINE,
+			ResponseCode.RPL_STATSLINKINFO,
+			ResponseCode.RPL_STATSUPTIME,
+			ResponseCode.RPL_STATSCOMMANDS,
+			ResponseCode.RPL_STATSOLINE,
+			ResponseCode.RPL_STATSHLINE,
+			ResponseCode.RPL_ENDOFSTATS,
 	}),
-	LINKS(new Response[] {
-			Response.ERR_NOSUCHSEVER,
-			Response.RPL_LINKS,
-			Response.RPL_ENDOFLINKS,
+	LINKS(new ResponseCode[] {
+			ResponseCode.ERR_NOSUCHSEVER,
+			ResponseCode.RPL_LINKS,
+			ResponseCode.RPL_ENDOFLINKS,
 	}),
-	TIME(new Response[] {
-			Response.ERR_NOSUCHSEVER,
-			Response.RPL_TIME,
+	TIME(new ResponseCode[] {
+			ResponseCode.ERR_NOSUCHSEVER,
+			ResponseCode.RPL_TIME,
 	}),
-	CONNECT(new Response[] {
-			Response.ERR_NOSUCHSEVER,
-			Response.ERR_NOPRIVILEGES,
-			Response.ERR_NEEDMOREPARAMS,
+	CONNECT(new ResponseCode[] {
+			ResponseCode.ERR_NOSUCHSEVER,
+			ResponseCode.ERR_NOPRIVILEGES,
+			ResponseCode.ERR_NEEDMOREPARAMS,
 	}),
-	TRACE(new Response[] {
-			Response.ERR_NOSUCHSEVER,
-			Response.RPL_TRACELINK,
-			Response.RPL_TRACECONNECTING,
-			Response.RPL_TRACEHANDSHAKE,
-			Response.RPL_TRACEUNKNOWN,
-			Response.RPL_TRACEOPERATOR,
-			Response.RPL_TRACEUSER,
-			Response.RPL_TRACESERVER,
-			Response.RPL_TRACENEWTYPE,
-			Response.RPL_TRACECLASS,
+	TRACE(new ResponseCode[] {
+			ResponseCode.ERR_NOSUCHSEVER,
+			ResponseCode.RPL_TRACELINK,
+			ResponseCode.RPL_TRACECONNECTING,
+			ResponseCode.RPL_TRACEHANDSHAKE,
+			ResponseCode.RPL_TRACEUNKNOWN,
+			ResponseCode.RPL_TRACEOPERATOR,
+			ResponseCode.RPL_TRACEUSER,
+			ResponseCode.RPL_TRACESERVER,
+			ResponseCode.RPL_TRACENEWTYPE,
+			ResponseCode.RPL_TRACECLASS,
 	}),
-	ADMIN(new Response[] {
-			Response.ERR_NOSUCHSEVER,
-			Response.RPL_ADMINME,
-			Response.RPL_ADMINLOC1,
-			Response.RPL_ADMINLOC2,
-			Response.RPL_ADMINEMAIL,
+	ADMIN(new ResponseCode[] {
+			ResponseCode.ERR_NOSUCHSEVER,
+			ResponseCode.RPL_ADMINME,
+			ResponseCode.RPL_ADMINLOC1,
+			ResponseCode.RPL_ADMINLOC2,
+			ResponseCode.RPL_ADMINEMAIL,
 	}),
-	INFO(new Response[] {
-			Response.ERR_NOSUCHSEVER,
-			Response.RPL_INFO,
-			Response.RPL_ENDOFINFO,
+	INFO(new ResponseCode[] {
+			ResponseCode.ERR_NOSUCHSEVER,
+			ResponseCode.RPL_INFO,
+			ResponseCode.RPL_ENDOFINFO,
 	}),
-	PRIVMSG(new Response[] {
-			Response.ERR_NORECIPIENT,
-			Response.ERR_NOTEXTTOSEND,
-			Response.ERR_CANNOTSENDTOCHAN,
-			Response.ERR_NOTOPLEVEL,
-			Response.ERR_WILDTOPLEVEL,
-			Response.ERR_TOOMANYTARGETS,
-			Response.ERR_NOSUCHNICK,
-			Response.RPL_AWAY,
+	PRIVMSG(new ResponseCode[] {
+			ResponseCode.ERR_NORECIPIENT,
+			ResponseCode.ERR_NOTEXTTOSEND,
+			ResponseCode.ERR_CANNOTSENDTOCHAN,
+			ResponseCode.ERR_NOTOPLEVEL,
+			ResponseCode.ERR_WILDTOPLEVEL,
+			ResponseCode.ERR_TOOMANYTARGETS,
+			ResponseCode.ERR_NOSUCHNICK,
+			ResponseCode.RPL_AWAY,
 	}),
-	NOTICE(new Response[] {
-			Response.ERR_NORECIPIENT,
-			Response.ERR_NOTEXTTOSEND,
-			Response.ERR_CANNOTSENDTOCHAN,
-			Response.ERR_NOTOPLEVEL,
-			Response.ERR_WILDTOPLEVEL,
-			Response.ERR_TOOMANYTARGETS,
-			Response.ERR_NOSUCHNICK,
-			Response.RPL_AWAY,
+	NOTICE(new ResponseCode[] {
+			ResponseCode.ERR_NORECIPIENT,
+			ResponseCode.ERR_NOTEXTTOSEND,
+			ResponseCode.ERR_CANNOTSENDTOCHAN,
+			ResponseCode.ERR_NOTOPLEVEL,
+			ResponseCode.ERR_WILDTOPLEVEL,
+			ResponseCode.ERR_TOOMANYTARGETS,
+			ResponseCode.ERR_NOSUCHNICK,
+			ResponseCode.RPL_AWAY,
 	}),
-	WHO(new Response[] {
-			Response.ERR_NOSUCHSEVER,
-			Response.RPL_WHOREPLY,
-			Response.RPL_ENDOFWHO,
+	WHO(new ResponseCode[] {
+			ResponseCode.ERR_NOSUCHSEVER,
+			ResponseCode.RPL_WHOREPLY,
+			ResponseCode.RPL_ENDOFWHO,
 	}),
-	WHOIS(new Response[] {
-			Response.ERR_NOSUCHSEVER,
-			Response.ERR_NONICKNAMEGIVEN,
-			Response.RPL_WHOISUSER,
-			Response.RPL_WHOISCHANNELS,
-			Response.RPL_WHOISSERVER,
-			Response.RPL_AWAY,
-			Response.RPL_WHOISOPERATOR,
-			Response.RPL_WHOISIDLE,
-			Response.ERR_NOSUCHNICK,
-			Response.RPL_ENDOFWHOIS,
+	WHOIS(new ResponseCode[] {
+			ResponseCode.ERR_NOSUCHSEVER,
+			ResponseCode.ERR_NONICKNAMEGIVEN,
+			ResponseCode.RPL_WHOISUSER,
+			ResponseCode.RPL_WHOISCHANNELS,
+			ResponseCode.RPL_WHOISSERVER,
+			ResponseCode.RPL_AWAY,
+			ResponseCode.RPL_WHOISOPERATOR,
+			ResponseCode.RPL_WHOISIDLE,
+			ResponseCode.ERR_NOSUCHNICK,
+			ResponseCode.RPL_ENDOFWHOIS,
 	}),
-	WHOWAS(new Response[] {
-			Response.ERR_NONICKNAMEGIVEN,
-			Response.ERR_WASNOSUCHNICK,
-			Response.RPL_WHOWASUSER,
-			Response.RPL_WHOISSERVER,
-			Response.RPL_ENDOFWHOWAS,
+	WHOWAS(new ResponseCode[] {
+			ResponseCode.ERR_NONICKNAMEGIVEN,
+			ResponseCode.ERR_WASNOSUCHNICK,
+			ResponseCode.RPL_WHOWASUSER,
+			ResponseCode.RPL_WHOISSERVER,
+			ResponseCode.RPL_ENDOFWHOWAS,
 	}),
-	KILL(new Response[] {
-			Response.ERR_NOPRIVILEGES,
-			Response.ERR_NEEDMOREPARAMS,
-			Response.ERR_NOSUCHNICK,
-			Response.ERR_CANTKILLSERVER,
+	KILL(new ResponseCode[] {
+			ResponseCode.ERR_NOPRIVILEGES,
+			ResponseCode.ERR_NEEDMOREPARAMS,
+			ResponseCode.ERR_NOSUCHNICK,
+			ResponseCode.ERR_CANTKILLSERVER,
 	}),
-	PING(new Response[] {
-			Response.ERR_NOORIGIN,
-			Response.ERR_NOSUCHSEVER,
+	PING(new ResponseCode[] {
+			ResponseCode.ERR_NOORIGIN,
+			ResponseCode.ERR_NOSUCHSEVER,
 	}),
-	PONG(new Response[] {
-			Response.ERR_NOORIGIN,
-			Response.ERR_NOSUCHSEVER,
+	PONG(new ResponseCode[] {
+			ResponseCode.ERR_NOORIGIN,
+			ResponseCode.ERR_NOSUCHSEVER,
 	}),
-	ERROR(new Response[] {}),
-	AWAY(new Response[] {
-			Response.RPL_UNAWAY,
-			Response.RPL_NOWAWAY,
+	ERROR(new ResponseCode[] {}),
+	AWAY(new ResponseCode[] {
+			ResponseCode.RPL_UNAWAY,
+			ResponseCode.RPL_NOWAWAY,
 	}),
-	REHASH(new Response[] {
-			Response.RPL_REHASHING,
-			Response.ERR_NOPRIVILEGES,
+	REHASH(new ResponseCode[] {
+			ResponseCode.RPL_REHASHING,
+			ResponseCode.ERR_NOPRIVILEGES,
 	}),
-	RESTART(new Response[] {
-			Response.ERR_NOPRIVILEGES,
+	RESTART(new ResponseCode[] {
+			ResponseCode.ERR_NOPRIVILEGES,
 	}),
-	SUMMON(new Response[] {
-			Response.ERR_NORECIPIENT,
-			Response.ERR_FILEERROR,
-			Response.ERR_NOLOGIN,
-			Response.ERR_NOSUCHSEVER,
-			Response.RPL_SUMMONING,
+	SUMMON(new ResponseCode[] {
+			ResponseCode.ERR_NORECIPIENT,
+			ResponseCode.ERR_FILEERROR,
+			ResponseCode.ERR_NOLOGIN,
+			ResponseCode.ERR_NOSUCHSEVER,
+			ResponseCode.RPL_SUMMONING,
 	}),
-	USERS(new Response[] {
-			Response.ERR_NOSUCHSEVER,
-			Response.ERR_FILEERROR,
-			Response.RPL_USERSSTART,
-			Response.RPL_USERS,
-			Response.RPL_NOUSERS,
-			Response.RPL_ENDOFUSERS,
-			Response.ERR_USERSDISABLED,
+	USERS(new ResponseCode[] {
+			ResponseCode.ERR_NOSUCHSEVER,
+			ResponseCode.ERR_FILEERROR,
+			ResponseCode.RPL_USERSSTART,
+			ResponseCode.RPL_USERS,
+			ResponseCode.RPL_NOUSERS,
+			ResponseCode.RPL_ENDOFUSERS,
+			ResponseCode.ERR_USERSDISABLED,
 	}),
-	WALLOPS(new Response[] {
-			Response.ERR_NEEDMOREPARAMS,
+	WALLOPS(new ResponseCode[] {
+			ResponseCode.ERR_NEEDMOREPARAMS,
 	}),
-	USERHOST(new Response[] {
-			Response.RPL_USERHOST,
-			Response.ERR_NEEDMOREPARAMS,
+	USERHOST(new ResponseCode[] {
+			ResponseCode.RPL_USERHOST,
+			ResponseCode.ERR_NEEDMOREPARAMS,
 	}),
-	ISON(new Response[] {
-			Response.RPL_ISON,
-			Response.ERR_NEEDMOREPARAMS,
+	ISON(new ResponseCode[] {
+			ResponseCode.RPL_ISON,
+			ResponseCode.ERR_NEEDMOREPARAMS,
 	}),
 	;
-	Response[] m_resp;
-	RequestCode(Response[] resp) {
+	ResponseCode[] m_resp;
+	RequestCode(ResponseCode[] resp) {
 		m_resp = resp;
 	}
-	Response[] getResponses() {
+	ResponseCode[] getResponses() {
 		return m_resp;
 	}
 }

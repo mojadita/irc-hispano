@@ -26,7 +26,7 @@ public class TestResponse {
 	@Test
 	public void testAscendingOrder() {
 		int initial = 0;
-		for (Response r : Response.values()) {
+		for (ResponseCode r : ResponseCode.values()) {
 			assertTrue(r + " is not in ascending order", initial < r.getProtocolValue());
 			initial = r.getProtocolValue();
 		}
@@ -34,7 +34,7 @@ public class TestResponse {
 
 	@Test
 	public void testAllHaveDescrip() {
-		for (Response r : Response.values()) {
+		for (ResponseCode r : ResponseCode.values()) {
 			int pv = r.getProtocolValue();
 			assertEquals(String.format("%03d", pv), r.getStringValue());
 		}
@@ -42,10 +42,10 @@ public class TestResponse {
 
 	@Test
 	public void testAllResponsesAppearInOneCommand() {
-		for (Response r : Response.values()) {
+		for (ResponseCode r : ResponseCode.values()) {
 			boolean appears = false;
 			outer: for (RequestCode c : RequestCode.values()) {
-				Response[] resps = c.getResponses();
+				ResponseCode[] resps = c.getResponses();
 				for (int i = 0; i < resps.length; i++) {
 					if (r == resps[i]) {
 						appears = true;
