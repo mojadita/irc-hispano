@@ -11,8 +11,6 @@ package es.lcssl.irc.protocol;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import javax.xml.ws.soap.AddressingFeature.Responses;
-
 import org.junit.Test;
 
 /**
@@ -21,7 +19,7 @@ import org.junit.Test;
  * @author Luis Colorado {@code <lc@luiscoloradosistemas.com>}
  *
  */
-public class TestResponse {
+public class TestResponseCode {
 
 	@Test
 	public void testAscendingOrder() {

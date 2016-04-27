@@ -24,8 +24,6 @@ public abstract class BasicMessage extends Common {
 	
 	public static final String PROPERTY_ORIGIN = "origin";
 	public static final String PROPERTY_PARAMS = "params";
-	public static final String ADD_PARAM = "add_param";
-	public static final String REMOVE_PARAM = "remove_param";
 	
 	Origin            m_origin;
 	ArrayList<String> m_params;
