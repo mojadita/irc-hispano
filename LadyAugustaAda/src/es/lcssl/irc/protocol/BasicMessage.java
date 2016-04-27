@@ -24,18 +24,40 @@ public abstract class BasicMessage extends Common {
 	
 	public static final String PROPERTY_ORIGIN = "origin";
 	public static final String PROPERTY_PARAMS = "params";
+	public static final String ADD_PARAM = "add_param";
+	public static final String REMOVE_PARAM = "remove_param";
 	
 	Origin            m_origin;
 	ArrayList<String> m_params;
-	String			  m_last;
 	
-	public BasicMessage(Origin origin, Collection<String> params, String last) {
+	public BasicMessage(Origin origin, Collection<String> params) {
 		m_origin = origin;
 		m_params = new ArrayList<String>();
 		for (String p: params) {
 			m_params.add(p);
 		}
-		m_last = last;
+	}
+	
+	public BasicMessage(Origin origin, String...params) {
+		m_origin = origin;
+		m_params = new ArrayList<String>();
+		for (String p: params) {
+			m_params.add(p);
+		}
+	}
+	
+	public BasicMessage(Collection<String> params) {
+		m_params = new ArrayList<String>();
+		for (String p: params) {
+			m_params.add(p);
+		}
+	}
+	
+	public BasicMessage(String...params) {
+		m_params = new ArrayList<String>();
+		for (String p: params) {
+			m_params.add(p);
+		}
 	}
 	
 	/**
