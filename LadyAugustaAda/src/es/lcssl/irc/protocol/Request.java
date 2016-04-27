@@ -19,27 +19,57 @@ import java.util.Collection;
  */
 public class Request extends BasicMessage {
 	
-	private static final long serialVersionUID = 2955429510211289247L;
 	
+	private static final long serialVersionUID = 5624224595553840161L;
+
 	public static final String PROPERTY_CODE = "code";
 	
 	RequestCode m_code;
 	
+	/**
+	 * Complete constructor with {@link Origin}, {@link RequestCode} and parameters
+	 * specified as a {@link Collection}{@code <{@link String}>}.
+	 * @param origin the {@link Origin} of the message.
+	 * @param code the message {@link RequestCode}.
+	 * @param params the {@link Collection} of {@link String}s that compose the
+	 * parameter list.
+	 */
 	public Request(Origin origin, RequestCode code, Collection<String> params) {
 		super(origin, params);
 		m_code = code;
 	}
 	
+	/**
+	 * Complete constructor with {@link Origin}, {@link RequestCode} and parameters
+	 * specified as a {@link Collection}{@code <{@link String}>}.
+	 * @param origin the {@link Origin} of the message.
+	 * @param code the message {@link RequestCode}.
+	 * @param params the parameter list as a {@code {@link String}[]}.
+	 */
 	public Request(Origin origin, RequestCode code, String... params) {
 		super(origin, params);
 		m_code = code;
 	}
 
+	/**
+	 * Non {@link Origin} constructor.  
+	 * 
+	 * @see {@link Request#Request(Origin, RequestCode, Collection)}
+	 * @param code the message {@link RequestCode}.
+	 * @param params the parameter list as a {@code {@link Collection}<{@link String}>}.
+	 */
 	public Request(RequestCode code, Collection<String> params) {
 		super(params);
 		m_code = code;
 	}
 	
+	/**
+	 * Non {@link Origin} constructor.
+	 * 
+	 * @see Request#Request(Origin, RequestCode, String...)
+	 * @param code
+	 * @param params
+	 */
 	public Request(RequestCode code, String... params) {
 		super(params);
 		m_code = code;

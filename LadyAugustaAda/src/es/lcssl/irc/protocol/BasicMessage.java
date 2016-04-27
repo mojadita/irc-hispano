@@ -30,6 +30,13 @@ public abstract class BasicMessage extends Common {
 	Origin            m_origin;
 	ArrayList<String> m_params;
 	
+	/**
+	 * Complete constructor with {@link Origin} and parameter list as a
+	 * {@code {@link Collection}<{@link String}>}.
+	 * 
+	 * @param origin the {@link Origin} of the message.
+	 * @param params the {@link Collection} of {@link String} parameters.
+	 */
 	public BasicMessage(Origin origin, Collection<String> params) {
 		m_origin = origin;
 		m_params = new ArrayList<String>();
@@ -38,6 +45,13 @@ public abstract class BasicMessage extends Common {
 		}
 	}
 	
+	/**
+	 * Complete constructor with {@link Origin} and parameter list as a
+	 * {@code {@link String}[]}.
+	 * 
+	 * @param origin the {@link Origin} of the message.
+	 * @param params the {@link String} array of parameters.
+	 */
 	public BasicMessage(Origin origin, String...params) {
 		m_origin = origin;
 		m_params = new ArrayList<String>();
@@ -46,6 +60,12 @@ public abstract class BasicMessage extends Common {
 		}
 	}
 	
+	/**
+	 * Constructor without {@link Origin} and with parameter list as a
+	 * {@code {@link Collection}<{@link String}>}.
+	 * 
+	 * @param params the {@link Collection} of {@link String} parameters.
+	 */
 	public BasicMessage(Collection<String> params) {
 		m_params = new ArrayList<String>();
 		for (String p: params) {
@@ -53,6 +73,12 @@ public abstract class BasicMessage extends Common {
 		}
 	}
 	
+	/**
+	 * Constructor without {@link Origin} and parameter list as a
+	 * {@code {@link String}[]}.
+	 * 
+	 * @param params the {@link String} array of parameters.
+	 */
 	public BasicMessage(String...params) {
 		m_params = new ArrayList<String>();
 		for (String p: params) {
