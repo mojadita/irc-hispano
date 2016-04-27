@@ -15,8 +15,8 @@ import org.junit.Test;
 public class TestCommands {
 	@Test
 	public void testNumberOfCommands() {
-		assertEquals(40, Command.values().length);
-		for (Command c: Command.values()) {
+		assertEquals(40, RequestCode.values().length);
+		for (RequestCode c: RequestCode.values()) {
 			assertNotNull(c.getResponses());
 		}
 	}

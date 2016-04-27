@@ -44,7 +44,7 @@ public class TestResponse {
 	public void testAllResponsesAppearInOneCommand() {
 		for (Response r : Response.values()) {
 			boolean appears = false;
-			outer: for (Command c : Command.values()) {
+			outer: for (RequestCode c : RequestCode.values()) {
 				Response[] resps = c.getResponses();
 				for (int i = 0; i < resps.length; i++) {
 					if (r == resps[i]) {

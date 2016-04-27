@@ -16,7 +16,7 @@ package es.lcssl.irc.protocol;
  * @author Luis Colorado {@code <luiscoloradourcola@gmail.com>}
  *
  */
-public enum Command {
+public enum RequestCode {
 	PASS(new Response[] {
 			Response.ERR_NEEDMOREPARAMS, 
 			Response.ERR_ALREADYREGISTERED,
@@ -269,7 +269,7 @@ public enum Command {
 	}),
 	;
 	Response[] m_resp;
-	Command(Response[] resp) {
+	RequestCode(Response[] resp) {
 		m_resp = resp;
 	}
 	Response[] getResponses() {
