@@ -16,7 +16,7 @@ import java.net.UnknownHostException;
 public class IrcSAP {
 	
 	private enum Status {
-		INITIAL, NICK, IDENT, HOST, COMMAND, MIDDLE, FINAL, CR,
+		INITIAL, ORIGIN, PRE_COMMAND, COMMAND, INTER_PARM, MIDDLE, FINAL, CR,
 	}
 	
 	Socket 				m_socket;
@@ -31,8 +31,86 @@ public class IrcSAP {
 			Status st = Status.INITIAL;
 			try {
 				while ((c = m_istream.read()) != -1) {
+
 					final char ch = (char) c;
+					StringBuilder origStr = null;
+					StringBuilder command = null;
+
 					switch (st) {
+					case INITIAL:
+						switch (ch) {
+						case ':': st = Status.ORIGIN; 
+							origStr = new StringBuilder(); 
+							continue;
+						case ' ': case '\t': continue;
+						case '\r': st = Status.CR; continue;
+						case '\n': continue;
+						default:
+							st = Status.COMMAND;
+							command = new StringBuilder(ch);
+							continue;
+						} 
+					case ORIGIN:
+						switch (ch) {
+						case '\t': case ' ': 
+							st = Status.COMMAND;
+							command = new StringBuilder();
+							continue;
+						case '\r': st = Status.CR; continue;
+						case '\n': st = Status.INITIAL; continue;
+						default: origStr.append(ch); continue;
+						}
+					case PRE_COMMAND:
+						switch (ch) {
+						case ' ':
+						case '\t':
+						case '\r':
+						case '\n':
+						default:
+						} break;
+					case COMMAND:
+						switch (ch) {
+						case ' ':
+						case '\t':
+						case '\r':
+						case '\n':
+						default:
+						} break;
+					case INTER_PARM:
+						switch (ch) {
+						case ' ':
+						case '\t':
+						case '\r':
+						case '\n':
+						default:
+						} break;
+					case MIDDLE:
+						switch (ch) {
+						case ':':
+						case ' ':
+						case '\t':
+						case '\r':
+						case '\n':
+						default:
+						} break;
+					case FINAL:
+						switch (ch) {
+						case ':':
+						case ' ':
+						case '\t':
+						case '\r':
+						case '\n':
+						default:
+						} break;
+					case CR:
+						switch (ch) {
+						case ':':
+						case ' ':
+						case '\t':
+						case '\r':
+						case '\n':
+						default:
+						} break;
 					}
 				}
 			} catch (IOException e) {
