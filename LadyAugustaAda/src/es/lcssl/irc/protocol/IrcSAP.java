@@ -22,6 +22,11 @@ import java.util.Properties;
  */
 public class IrcSAP extends Thread {
 	
+	public static final String PROPERTY_NICK = "user.nick";
+	public static final String PROPERTY_IDENT = "user.ident";
+	public static final String PROPERTY_NAME = "user.name";
+	public static final String PROPERTY_MODES = "user.modes";
+	
 	private enum Status {
 		/**
 		 * This state is the initial state and the state when
@@ -51,6 +56,11 @@ public class IrcSAP extends Thread {
 		 * message.
 		 */
 		COMMAND, 
+		
+		/**
+		 * This state is held while reading a response code.
+		 */
+		RESPONSE,
 		
 		/**
 		 * This state is maintained while reading the blank space present
@@ -91,17 +101,22 @@ public class IrcSAP extends Thread {
 
 	@Override
 	public void run() {
+
 		int c;
 		Status st = Status.INITIAL;
+		
 		StringBuilder origStr = null;
 		StringBuilder command = null;
-		ArrayList<String> params = null;
+		StringBuilder response = null;
+		StringBuilder param = null;
+
 		try {
 			while ((c = m_istream.read()) != -1) {
 
 				final char ch = (char) c;
 
 				switch (st) {
+				
 				case INITIAL:
 					switch (ch) {
 					case ':': st = Status.ORIGIN; 
@@ -110,21 +125,28 @@ public class IrcSAP extends Thread {
 					case ' ': case '\t': continue;
 					case '\r': st = Status.CR; continue;
 					case '\n': continue;
+					case '0': case '1': case '2': case '3': case '4':
+					case '5': case '6': case '7': case '8': case '9':
+						st = Status.RESPONSE;
+						response = new StringBuilder(ch);
+						continue;
 					default:
 						st = Status.COMMAND;
 						command = new StringBuilder(ch);
 						continue;
 					} 
+					
 				case ORIGIN:
 					switch (ch) {
 					case '\t': case ' ': 
-						st = Status.COMMAND;
+						st = Status.PRE_COMMAND;
 						command = new StringBuilder();
 						continue;
 					case '\r': st = Status.CR; continue;
 					case '\n': st = Status.INITIAL; continue;
 					default: origStr.append(ch); continue;
 					}
+					
 				case PRE_COMMAND:
 					switch (ch) {
 					case ' ':
@@ -133,6 +155,7 @@ public class IrcSAP extends Thread {
 					case '\n':
 					default:
 					} break;
+					
 				case COMMAND:
 					switch (ch) {
 					case ' ':
@@ -141,6 +164,7 @@ public class IrcSAP extends Thread {
 					case '\n':
 					default:
 					} break;
+					
 				case INTER_PARM:
 					switch (ch) {
 					case ' ':
@@ -149,6 +173,7 @@ public class IrcSAP extends Thread {
 					case '\n':
 					default:
 					} break;
+					
 				case MIDDLE:
 					switch (ch) {
 					case ':':
@@ -158,6 +183,7 @@ public class IrcSAP extends Thread {
 					case '\n':
 					default:
 					} break;
+					
 				case FINAL:
 					switch (ch) {
 					case ':':
@@ -167,6 +193,7 @@ public class IrcSAP extends Thread {
 					case '\n':
 					default:
 					} break;
+					
 				case CR:
 					switch (ch) {
 					case ':':
@@ -176,8 +203,13 @@ public class IrcSAP extends Thread {
 					case '\n':
 					default:
 					} break;
-				}
-			}
+				case ERROR:
+					switch (ch) {
+					case '\n': st = Status.INITIAL; continue;
+					default: continue;
+					}
+				} // switch
+			} // while
 		} catch (IOException e) {
 			e.printStackTrace();
 			try {
@@ -185,9 +217,9 @@ public class IrcSAP extends Thread {
 				m_socket.close();
 			} catch (IOException e1) {
 				e1.printStackTrace();
-			}
-		}
-	}
+			} // try/catch
+		} // try/catch
+	} // run()
 	
 	/**
 	 * Default constructor.
