@@ -115,12 +115,26 @@ public abstract class BasicMessage extends Common {
 	
 	/**
 	 * Setter for {@code ArrayList<String>} property {@code params}.
-	 * @param params the {@code ArrayList<String>} value to set params property to.
+	 * @param params the {@code ArrayList<String>} value to set {@code params} property to.
 	 */
-	public void setParams(ArrayList<String> params) {
+	public void setParams(Collection<String> params) {
 		ArrayList<String> oldParams = getParams();
 		if (params == oldParams) return;
-		m_params = params;
+		m_params = new ArrayList<String>();
+		m_params.addAll(params);
 		firePropertyChange(PROPERTY_PARAMS, oldParams, params);
+	}
+	
+	/**
+	 * Convenience method to set programmatically the
+	 * {@code {@link ArrayList}<{@link String}>} property {@code params}.
+	 * @param params the parameters to be adjusted the property to.
+	 */
+	public void setParams(String...params) {
+		ArrayList<String> oldParams = getParams();
+		m_params = new ArrayList<String>();
+		for (String s:params)
+			m_params.add(s);
+		firePropertyChange(PROPERTY_PARAMS, oldParams, m_params);
 	}
 }

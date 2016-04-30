@@ -103,7 +103,7 @@ public class Request extends BasicMessage {
 		StringBuilder sb = new StringBuilder();
 		Origin o = getOrigin();
 		if (o != null) {
-			sb.append(o).append(" ");
+			sb.append(':').append(o).append(" ");
 		}
 		sb.append(m_code.name());
 		
