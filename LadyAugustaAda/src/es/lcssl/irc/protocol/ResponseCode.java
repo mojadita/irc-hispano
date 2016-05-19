@@ -14,7 +14,7 @@ package es.lcssl.irc.protocol;
  * @author luis
  *
  */
-public enum ResponseCode {
+public enum ResponseCode implements MessageCode {
 	RPL_WELCOME(1),
 	RPL_YOURHOST(2),
 	RPL_CREATED(3),
@@ -158,12 +158,19 @@ public enum ResponseCode {
 	ERR_UMODEUNKNOWNFLAG(501),
 	ERR_USERSDONTMATCH(502),
 	;
+	
 	int m_protocolValue;
 	String m_stringValue;
+	String m_hrMessage;
 	
 	ResponseCode(int value) {
 		m_protocolValue = value;
 		m_stringValue = String.format("%03d", value);
+	}
+	
+	ResponseCode(int value, String message) {
+		this(value);
+		m_hrMessage = message;
 	}
 
 	/**
@@ -178,5 +185,21 @@ public enum ResponseCode {
 	 */
 	public String getStringValue() {
 		return m_stringValue;
+	}
+
+	/* (non-Javadoc)
+	 * @see es.lcssl.irc.protocol.MessageCode#isRequestCode()
+	 */
+	@Override
+	public boolean isRequestCode() {
+		return false;
+	}
+
+	/* (non-Javadoc)
+	 * @see es.lcssl.irc.protocol.MessageCode#isResponseCode()
+	 */
+	@Override
+	public boolean isResponseCode() {
+		return true;
 	}
 }

@@ -17,7 +17,7 @@ import java.util.Collection;
  * @author Luis Colorado {@code <lc@luiscoloradosistemas.com>}
  *
  */
-public class Request extends BasicMessage {
+public class Request extends BasicMessage implements IRCMessage {
 	
 	
 	private static final long serialVersionUID = 5624224595553840161L;
