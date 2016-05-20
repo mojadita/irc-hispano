@@ -16,7 +16,12 @@ import java.io.Serializable;
  * @author Luis Colorado {@code <lc@luiscoloradosistemas.com>}
  *
  */
-public abstract class Common implements Serializable {
+public class Common implements Serializable {
+	
+	/**
+	 * The {@code long} {@code serialVersionUID}.
+	 */
+	private static final long serialVersionUID = -2254538933719665291L;
 	
 	private PropertyChangeSupport m_pcs;
 	
@@ -24,13 +29,6 @@ public abstract class Common implements Serializable {
 		m_pcs = new PropertyChangeSupport(this);
 	}
 	
-	/**
-	 * Generates the protocol string to be included for protocol
-	 * serialization.
-	 * @return the string value to be put in the protocol message.
-	 */
-	public abstract String protocolValue();
-
 	/**
 	 * Add a PropertyChangeListener to the listener list. The listener is
 	 * registered for all properties. The same listener object may be added more

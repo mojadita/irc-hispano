@@ -58,7 +58,6 @@ public class Channel extends Common {
 	/* (non-Javadoc)
 	 * @see es.lcssl.irc.protocol.Common#protocolValue()
 	 */
-	@Override
 	public String protocolValue() {
 		return m_type.getPfx() + m_id;
 	}

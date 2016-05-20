@@ -12,9 +12,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
- * Abstract basic message type.  
- * 
- * Subclassed for Request and Response.
+ * message type.  
  * 
  * @author Luis Colorado {@code <lc@luiscoloradosistemas.com>}
  */
@@ -23,9 +21,11 @@ public abstract class BasicMessage extends Common {
 	private static final long serialVersionUID = -8756960660302415524L;
 	
 	public static final String PROPERTY_ORIGIN = "origin";
+	public static final String PROPERTY_CODE   = "code";
 	public static final String PROPERTY_PARAMS = "params";
 	
 	Origin            m_origin;
+	MessageCode		  m_code;
 	ArrayList<String> m_params;
 	
 	/**
@@ -33,10 +33,13 @@ public abstract class BasicMessage extends Common {
 	 * {@code {@link Collection}<{@link String}>}.
 	 * 
 	 * @param origin the {@link Origin} of the message.
-	 * @param params the {@link Collection} of {@link String} parameters.
+	 * @param code the {@link MessageCode} for this message.
+	 * @param params the {@link Collection} of {@link String} parameters that will
+	 * be the message parameters.
 	 */
-	public BasicMessage(Origin origin, Collection<String> params) {
+	public BasicMessage(Origin origin, MessageCode code, Collection<String> params) {
 		m_origin = origin;
+		m_code   = code;
 		m_params = new ArrayList<String>();
 		for (String p: params) {
 			m_params.add(p);
@@ -44,14 +47,15 @@ public abstract class BasicMessage extends Common {
 	}
 	
 	/**
-	 * Complete constructor with {@link Origin} and parameter list as a
-	 * {@code {@link String}[]}.
+	 * Complete constructor with {@link Origin} and variable parameter list.
 	 * 
 	 * @param origin the {@link Origin} of the message.
-	 * @param params the {@link String} array of parameters.
+	 * @param code the {@link MessageCode} of the message.
+	 * @param params the {@link String} list of parameters.
 	 */
-	public BasicMessage(Origin origin, String...params) {
+	public BasicMessage(Origin origin, MessageCode code, String...params) {
 		m_origin = origin;
+		m_code = code;
 		m_params = new ArrayList<String>();
 		for (String p: params) {
 			m_params.add(p);
@@ -64,7 +68,8 @@ public abstract class BasicMessage extends Common {
 	 * 
 	 * @param params the {@link Collection} of {@link String} parameters.
 	 */
-	public BasicMessage(Collection<String> params) {
+	public BasicMessage(MessageCode code, Collection<String> params) {
+		m_code = code;
 		m_params = new ArrayList<String>();
 		for (String p: params) {
 			m_params.add(p);
@@ -77,7 +82,8 @@ public abstract class BasicMessage extends Common {
 	 * 
 	 * @param params the {@link String} array of parameters.
 	 */
-	public BasicMessage(String...params) {
+	public BasicMessage(MessageCode code, String...params) {
+		m_code = code;
 		m_params = new ArrayList<String>();
 		for (String p: params) {
 			m_params.add(p);
@@ -102,6 +108,25 @@ public abstract class BasicMessage extends Common {
 		if (oldOrigin == origin) return;
 		m_origin = origin;
 		firePropertyChange(PROPERTY_ORIGIN, oldOrigin, origin);
+	}
+	
+	/**
+	 * Getter for the {@link MessageCode} {@code code} property.
+	 * @return the {@link MessageCode} of this message.
+	 */
+	public MessageCode getCode() {
+		return m_code;
+	}
+	
+	/**
+	 * Setter for the {@link MessageCode} {@code code} property.
+	 * @param code the {@link MessageCode} to set this message to.
+	 */
+	public void setCode(MessageCode code) {
+		MessageCode oldCode = getCode();
+		if (oldCode == code) return;
+		m_code = code;
+		firePropertyChange(PROPERTY_CODE, oldCode, code);
 	}
 	
 	/**
