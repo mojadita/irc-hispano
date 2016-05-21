@@ -16,7 +16,7 @@ import java.util.Collection;
  * 
  * @author Luis Colorado {@code <lc@luiscoloradosistemas.com>}
  */
-public abstract class BasicMessage extends Common {
+public class BasicMessage extends Common {
 	
 	private static final long serialVersionUID = -8756960660302415524L;
 	

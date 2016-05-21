@@ -52,7 +52,6 @@ public class Origin extends Common {
 		}
 	}
 	
-	@Override
 	public String protocolValue() {
 		return m_nick;
 	}

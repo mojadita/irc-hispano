@@ -10,7 +10,6 @@ package es.lcssl.irc.protocol;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Iterator;
 
 /**
  * This class represents the IRC parser that gets bytes from the {@link InputStream}
@@ -20,19 +19,18 @@ import java.util.Iterator;
  * @author Luis Colorado {@code <lc@luiscoloradosistemas.com>}
  *
  */
-public class IRCParser implements Iterable<IRCMessage>, Iterator<IRCMessage>, Runnable {
+public class IRCParser {
 	
-	private InputStream m_in;
-	private Status m_st;
-	private StringBuilder m_origStr;
-	private Origin m_origin;
-	private StringBuilder m_reqStr;
-	private RequestCode m_reqCode;
-	private StringBuilder m_respStr;
-	private ResponseCode m_respCode;
-	private StringBuilder m_param;
-	private Request m_request;
-	private Response m_response;
+	private InputStream   m_in;
+	private Status        m_st;
+	
+	private StringBuilder m_orgStr;
+	private StringBuilder m_codStr;
+	private StringBuilder m_parStr;
+	
+	private Origin        m_origin;
+	private MessageCode   m_msgCode;
+	private BasicMessage  m_message;
 	
 	private enum Status {
 		/**
@@ -55,19 +53,14 @@ public class IRCParser implements Iterable<IRCMessage>, Iterator<IRCMessage>, Ru
 		 * exist between the {@link Origin} field and the command of
 		 * a message.
 		 */
-		PRE_COMMAND, 
+		PRE_CODE, 
 		
 		/**
 		 * This state is maintained while reading the command part of
 		 * a message.  Also when a response code is present for a response
 		 * message.
 		 */
-		COMMAND, 
-		
-		/**
-		 * This state is held while reading a response code.
-		 */
-		RESPONSE,
+		INCODE, 
 		
 		/**
 		 * This state is maintained while reading the blank space present
@@ -104,34 +97,37 @@ public class IRCParser implements Iterable<IRCMessage>, Iterator<IRCMessage>, Ru
 	
 	public IRCParser(InputStream in) {
 		m_in = in;
-	}
+		reset();
+	}	
 	
-	private void init() {
-		m_st = Status.INITIAL;
-		m_origStr = null;
-		m_origin = null;
-		m_reqStr = null;
-		m_reqCode = null;
-		m_respStr = null;
-		m_respCode = null;
-		m_param = null;
-		m_request = null;
-		m_response = null;
-	}
-	
-	private void trigger() {
+	public void reset() {
+		m_st      = Status.INITIAL;
 		
-	}
-	
-	@Override
-	public boolean hasNext() {
+		m_orgStr  = null;
+		m_codStr  = null;
+		m_codStr  = null;
+		m_parStr  = null;
 		
-		if (m_request != null) 
-			return true;
+		m_origin  = null;
+		m_msgCode = null;
+		m_message = null;
+	}
 
-		int c;
-		init();
+	private void createTheMessage(Status nextSt) {
+		m_msgCode = MessageCode.fromProto(m_codStr.toString());
+		if (m_msgCode == null) { // not valid message code.
+			m_st = Status.ERROR;
+			System.err.println("Error: invalid msgcode: " + m_codStr);
+		} else {
+			m_st = nextSt;
+			m_message = new BasicMessage(m_origin, m_msgCode);
+		}
+	}
+
+	public BasicMessage scan() {
 		
+		int c;
+
 		try {
 			while ((c = m_in.read()) != -1) {
 				char ch = (char) c;
@@ -140,165 +136,149 @@ public class IRCParser implements Iterable<IRCMessage>, Iterator<IRCMessage>, Ru
 
 				case INITIAL:
 					switch (ch) {
-					case ':': m_st = Status.ORIGIN; 
-						m_origStr = new StringBuilder(); 
+					case ':': 
+						m_st = Status.ORIGIN; 
+						m_orgStr = new StringBuilder(); 
 						continue;
-					case ' ': case '\t': continue;
-					case '\r': m_st = Status.IN_CR; continue;
-					case '\n': init(); continue;
-					case '0': case '1': case '2': case '3': case '4':
-					case '5': case '6': case '7': case '8': case '9':
-						m_st = Status.RESPONSE;
-						m_respStr = new StringBuilder(ch);
+					case ' ': case '\t': 
+					case '\n': 
+						continue;
+					case '\r': 
+						m_st = Status.IN_CR; 
 						continue;
 					default:
-						m_st = Status.COMMAND;
-						m_reqStr = new StringBuilder(ch);
+						m_st = Status.INCODE;
+						m_codStr = new StringBuilder();
+						m_codStr.append(ch);
 						continue;
 					} 
 
 				case ORIGIN:
-					switch (c) {
+					switch (ch) {
 					case '\t': case ' ': 
-						m_st = Status.PRE_COMMAND;
-						m_origin = new Origin(m_origStr.toString());
-						m_reqStr = new StringBuilder();
+						m_st = Status.PRE_CODE;
+						m_origin = new Origin(m_orgStr.toString()); m_orgStr = null;
 						continue;
-					case '\r': m_st = Status.IN_CR; continue;
-					case '\n': init(); continue;
-					default: m_origStr.append((char)c); continue;
+					case '\r': 
+						m_st = Status.IN_CR; 
+						continue;
+					case '\n': 
+						reset(); 
+						continue;
+					default: 
+						m_orgStr.append(ch); 
+						continue;
 					}
 
-				case PRE_COMMAND:
-					switch (c) {
-					case ' ': case '\t': continue;
-					case '\r': m_st = Status.IN_CR; continue;
-					case '\n': init(); continue;
-					case '0': case '1': case '2': case '3': case '4':
-					case '5': case '6': case '7': case '8': case '9':
-						m_st = Status.RESPONSE;
-						m_respStr = new StringBuilder(ch);
+				case PRE_CODE:
+					switch (ch) {
+					case ' ': case '\t': 
+						continue;
+					case '\r': 
+						m_st = Status.IN_CR; 
+						continue;
+					case '\n': 
+						reset(); 
 						continue;
 					default:
-						m_st = Status.COMMAND;
-						m_reqStr = new StringBuilder(ch);
+						m_st = Status.INCODE;
+						m_codStr = new StringBuilder();
+						m_codStr.append(ch);
 						continue;
 					}
 
-				case COMMAND:
-					switch (c) {
+				case INCODE:
+					switch (ch) {
 					case ' ': case '\t':
-						m_reqCode = RequestCode.valueOf(m_reqStr.toString());
-						if (m_reqCode == null) {
-							m_st = Status.ERROR;
-						} else {
-							
-							m_request = m_origin != null 
-									? new Request(m_origin, m_reqCode) 
-									: new Request(m_reqCode);
-							m_st = Status.INTER_PARM;
-						}
+						createTheMessage(Status.INTER_PARM);
 						continue;
 					case '\r':
-						m_reqCode = RequestCode.valueOf(m_reqStr.toString());
-						if (m_reqCode == null) {
-							m_st = Status.ERROR;
-						} else {
-							
-							m_request = m_origin != null
-									? new Request(m_origin, m_reqCode)
-									: new Request(m_reqCode);
-							m_st = Status.IN_CR;
-						}
+						createTheMessage(Status.IN_CR);
+						continue;
 					case '\n':
-						m_reqCode = RequestCode.valueOf(m_reqStr.toString());
+						createTheMessage(Status.INITIAL);
+						return m_message;
 					default:
-					} break;
-
-				case RESPONSE:
-					switch (c) {
-					case ' ':
-					case '\t':
-					case '\r':
-					case '\n':
-					default:
-					} break;
+						m_codStr.append(ch);
+						continue;
+					}
 
 				case INTER_PARM:
-					switch (c) {
-					case ' ':
-					case '\t':
+					switch (ch) {
+					case ' ': case '\t':
+						continue;
 					case '\r':
+						m_st = Status.IN_CR;
+						continue;
 					case '\n':
+						m_st = Status.INITIAL;
+						return m_message;
+					case ':':
+						m_st = Status.FINAL;
+						continue;
 					default:
-					} break;
+						m_st = Status.MIDDLE;
+						m_parStr = new StringBuilder();
+						m_parStr.append(ch);
+						continue;
+					}
 
 				case MIDDLE:
-					switch (c) {
-					case ':':
-					case ' ':
-					case '\t':
+					switch (ch) {
+					case ' ': case '\t':
+						m_st = Status.INTER_PARM;
+						m_message.getParams().add(m_parStr.toString());
+						continue;
 					case '\r':
+						m_st = Status.IN_CR;
+						m_message.getParams().add(m_parStr.toString());
+						continue;
 					case '\n':
+						m_st = Status.INITIAL;
+						return m_message;
 					default:
-					} break;
+						m_parStr.append(ch);
+						continue;
+					}
 
 				case FINAL:
-					switch (c) {
-					case ':':
-					case ' ':
-					case '\t':
+					switch (ch) {
 					case '\r':
+						m_st = Status.IN_CR;
+						m_message.getParams().add(m_parStr.toString());
+						continue;
 					case '\n':
+						m_st = Status.INITIAL;
+						m_message.getParams().add(m_parStr.toString());
+						return m_message;
 					default:
-					} break;
+						m_parStr.append(ch);
+						continue;
+					} 
 
 				case IN_CR:
-					switch (c) {
-					case ':':
-					case ' ':
-					case '\t':
-					case '\r':
+					switch (ch) {
 					case '\n':
+						m_st = Status.INITIAL;
+						return m_message;
 					default:
-					} break;
+						m_st = Status.ERROR;
+						System.err.println("Syntax error: some chars between \\r and \\n");
+						continue;
+					}
 				case ERROR:
-					switch (c) {
-					case '\n': m_st = Status.INITIAL; continue;
-					default: continue;
+					switch (ch) {
+					case '\n': 
+						m_st = Status.INITIAL; 
+						continue;
+					default: 
+						continue;
 					}
 				} // switch
-			}
+			} // while
 		} catch (IOException e) {
 			e.printStackTrace();
 		} // while
-		return false;
-	} // hasNext()
-
-	/* (non-Javadoc)
-	 * @see java.lang.Iterable#iterator()
-	 */
-	@Override
-	public Iterator<IRCMessage> iterator() {
-		// TODO Auto-generated method stub
 		return null;
-	}
-
-	/* (non-Javadoc)
-	 * @see java.lang.Runnable#run()
-	 */
-	@Override
-	public void run() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	/* (non-Javadoc)
-	 * @see java.util.Iterator#next()
-	 */
-	@Override
-	public IRCMessage next() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	} // scan()
 }
