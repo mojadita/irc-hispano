@@ -127,6 +127,9 @@ public class IRCParser {
 	public BasicMessage scan() {
 		
 		int c;
+		
+		// just to ensure we are clean.
+		if (m_st == Status.INITIAL) reset();
 
 		try {
 			while ((c = m_in.read()) != -1) {
@@ -215,6 +218,7 @@ public class IRCParser {
 						return m_message;
 					case ':':
 						m_st = Status.FINAL;
+						m_parStr = new StringBuilder();
 						continue;
 					default:
 						m_st = Status.MIDDLE;
@@ -228,10 +232,12 @@ public class IRCParser {
 					case ' ': case '\t':
 						m_st = Status.INTER_PARM;
 						m_message.getParams().add(m_parStr.toString());
+						m_parStr = null;
 						continue;
 					case '\r':
 						m_st = Status.IN_CR;
 						m_message.getParams().add(m_parStr.toString());
+						m_parStr = null;
 						continue;
 					case '\n':
 						m_st = Status.INITIAL;

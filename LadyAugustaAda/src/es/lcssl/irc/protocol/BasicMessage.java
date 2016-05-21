@@ -10,6 +10,7 @@ package es.lcssl.irc.protocol;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.regex.Pattern;
 
 /**
  * message type.  
@@ -23,6 +24,8 @@ public class BasicMessage extends Common {
 	public static final String PROPERTY_ORIGIN = "origin";
 	public static final String PROPERTY_CODE   = "code";
 	public static final String PROPERTY_PARAMS = "params";
+	
+	private static final Pattern hasSpaces     = Pattern.compile(".*[\\t ].*");
 	
 	Origin            m_origin;
 	MessageCode		  m_code;
@@ -161,5 +164,24 @@ public class BasicMessage extends Common {
 		for (String s:params)
 			m_params.add(s);
 		firePropertyChange(PROPERTY_PARAMS, oldParams, m_params);
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		Origin o = getOrigin();
+		if (o != null)
+			sb.append(":" + o + " ");
+		sb.append(getCode().getName());
+		boolean notDoneBefore = true;
+		for (String p: getParams()) {
+			sb.append(" ");
+			if (notDoneBefore && hasSpaces.matcher(p).matches()) {
+				notDoneBefore = false;
+				sb.append(":");
+			}
+			sb.append(p);
+		}
+		return sb.toString();
 	}
 }
