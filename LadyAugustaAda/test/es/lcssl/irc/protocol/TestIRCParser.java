@@ -36,7 +36,7 @@ public class TestIRCParser {
 	public void testScan() {
 		iut = new IRCParser(in);
 		assertNotNull(iut);
-		BasicMessage m = iut.scan();
+		IRCMessage m = iut.scan();
 		assertNotNull(m);
 		assertEquals("a!b@c.d", m.getOrigin().toString());
 		assertEquals("PING", m.getCode().getName());
@@ -53,7 +53,7 @@ public class TestIRCParser {
 		m = iut.scan();
 		assertNotNull(m);
 		assertNull(m.getOrigin());
-		assertEquals(MessageCode.PRIVMSG, m.getCode());
+		assertEquals(IRCCode.PRIVMSG, m.getCode());
 		assertArrayEquals(
 				new String[] {"#literatura", "Hola a todos, buenas tardes"}, 
 				m.getParams().toArray());
@@ -61,7 +61,7 @@ public class TestIRCParser {
 		m = iut.scan();
 		assertNotNull(m);
 		assertEquals("deep.space", m.getOrigin().toString());
-		assertEquals(MessageCode.RPL_WELCOME, m.getCode());
+		assertEquals(IRCCode.RPL_WELCOME, m.getCode());
 		assertArrayEquals(
 				new String[] {"Welcome a!b@c.d"}, 
 				m.getParams().toArray());

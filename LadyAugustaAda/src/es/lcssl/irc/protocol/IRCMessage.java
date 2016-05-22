@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
  * 
  * @author Luis Colorado {@code <lc@luiscoloradosistemas.com>}
  */
-public class BasicMessage extends Common {
+public class IRCMessage extends Common {
 	
 	private static final long serialVersionUID = -8756960660302415524L;
 	
@@ -28,7 +28,7 @@ public class BasicMessage extends Common {
 	private static final Pattern hasSpaces     = Pattern.compile(".*[\\t ].*");
 	
 	Origin            m_origin;
-	MessageCode		  m_code;
+	IRCCode		  m_code;
 	ArrayList<String> m_params;
 	
 	/**
@@ -36,11 +36,11 @@ public class BasicMessage extends Common {
 	 * {@code {@link Collection}<{@link String}>}.
 	 * 
 	 * @param origin the {@link Origin} of the message.
-	 * @param code the {@link MessageCode} for this message.
+	 * @param code the {@link IRCCode} for this message.
 	 * @param params the {@link Collection} of {@link String} parameters that will
 	 * be the message parameters.
 	 */
-	public BasicMessage(Origin origin, MessageCode code, Collection<String> params) {
+	public IRCMessage(Origin origin, IRCCode code, Collection<String> params) {
 		m_origin = origin;
 		m_code   = code;
 		m_params = new ArrayList<String>();
@@ -53,10 +53,10 @@ public class BasicMessage extends Common {
 	 * Complete constructor with {@link Origin} and variable parameter list.
 	 * 
 	 * @param origin the {@link Origin} of the message.
-	 * @param code the {@link MessageCode} of the message.
+	 * @param code the {@link IRCCode} of the message.
 	 * @param params the {@link String} list of parameters.
 	 */
-	public BasicMessage(Origin origin, MessageCode code, String...params) {
+	public IRCMessage(Origin origin, IRCCode code, String...params) {
 		m_origin = origin;
 		m_code = code;
 		m_params = new ArrayList<String>();
@@ -71,7 +71,7 @@ public class BasicMessage extends Common {
 	 * 
 	 * @param params the {@link Collection} of {@link String} parameters.
 	 */
-	public BasicMessage(MessageCode code, Collection<String> params) {
+	public IRCMessage(IRCCode code, Collection<String> params) {
 		m_code = code;
 		m_params = new ArrayList<String>();
 		for (String p: params) {
@@ -85,7 +85,7 @@ public class BasicMessage extends Common {
 	 * 
 	 * @param params the {@link String} array of parameters.
 	 */
-	public BasicMessage(MessageCode code, String...params) {
+	public IRCMessage(IRCCode code, String...params) {
 		m_code = code;
 		m_params = new ArrayList<String>();
 		for (String p: params) {
@@ -114,19 +114,19 @@ public class BasicMessage extends Common {
 	}
 	
 	/**
-	 * Getter for the {@link MessageCode} {@code code} property.
-	 * @return the {@link MessageCode} of this message.
+	 * Getter for the {@link IRCCode} {@code code} property.
+	 * @return the {@link IRCCode} of this message.
 	 */
-	public MessageCode getCode() {
+	public IRCCode getCode() {
 		return m_code;
 	}
 	
 	/**
-	 * Setter for the {@link MessageCode} {@code code} property.
-	 * @param code the {@link MessageCode} to set this message to.
+	 * Setter for the {@link IRCCode} {@code code} property.
+	 * @param code the {@link IRCCode} to set this message to.
 	 */
-	public void setCode(MessageCode code) {
-		MessageCode oldCode = getCode();
+	public void setCode(IRCCode code) {
+		IRCCode oldCode = getCode();
 		if (oldCode == code) return;
 		m_code = code;
 		firePropertyChange(PROPERTY_CODE, oldCode, code);

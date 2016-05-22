@@ -29,8 +29,8 @@ public class IRCParser {
 	private StringBuilder m_parStr;
 	
 	private Origin        m_origin;
-	private MessageCode   m_msgCode;
-	private BasicMessage  m_message;
+	private IRCCode   m_msgCode;
+	private IRCMessage  m_message;
 	
 	private enum Status {
 		/**
@@ -114,17 +114,17 @@ public class IRCParser {
 	}
 
 	private void createTheMessage(Status nextSt) {
-		m_msgCode = MessageCode.fromProto(m_codStr.toString());
+		m_msgCode = IRCCode.fromProto(m_codStr.toString());
 		if (m_msgCode == null) { // not valid message code.
 			m_st = Status.ERROR;
 			System.err.println("Error: invalid msgcode: " + m_codStr);
 		} else {
 			m_st = nextSt;
-			m_message = new BasicMessage(m_origin, m_msgCode);
+			m_message = new IRCMessage(m_origin, m_msgCode);
 		}
 	}
 
-	public BasicMessage scan() {
+	public IRCMessage scan() {
 		
 		int c;
 		

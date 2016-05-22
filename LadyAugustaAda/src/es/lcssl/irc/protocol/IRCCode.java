@@ -17,7 +17,7 @@ import java.util.TreeMap;
  * @author Luis Colorado {@code <lc@luiscoloradosistemas.com>}
  *
  */
-public enum MessageCode {
+public enum IRCCode {
 	
 	// requests
 	PASS,
@@ -210,7 +210,7 @@ public enum MessageCode {
 	boolean m_request = true;
 	String m_name;
 	
-	private static Map<String, MessageCode> map;
+	private static Map<String, IRCCode> map;
 	
 	/**
 	 * Constructor for requests.  Identifiers must be the same as the
@@ -218,7 +218,7 @@ public enum MessageCode {
 	 * request names to be named equal, a parameter with the command
 	 * name will be added.
 	 */
-	MessageCode() {
+	IRCCode() {
 		m_code = -1;
 		m_request = true;
 		m_name = name();
@@ -228,7 +228,7 @@ public enum MessageCode {
 	 * Constructor for replies.  We conserve names as per RFC-
 	 * @param code
 	 */
-	MessageCode(int code) {
+	IRCCode(int code) {
 		m_code = (short) code;
 		m_request = false;
 		m_name = String.format("%03d", code);
@@ -240,10 +240,10 @@ public enum MessageCode {
 	 * @param v the IRC string matching the MessageCode to look for.
 	 * @return the MessageCode corresponding to the matched String.
 	 */
-	public static final MessageCode fromProto(String v) {
+	public static final IRCCode fromProto(String v) {
 		if (map == null) { // this happens only once.
-			map = new TreeMap<String, MessageCode>();
-			for (MessageCode c: MessageCode.values())
+			map = new TreeMap<String, IRCCode>();
+			for (IRCCode c: IRCCode.values())
 				map.put(c.getName(), c);
 		}
 		return map.get(v);
@@ -282,7 +282,7 @@ public enum MessageCode {
 	
 	/**
 	 * Method to know if a response is an error message.
-	 * @return {@code true} in case the {@link MessageCode} is a error
+	 * @return {@code true} in case the {@link IRCCode} is a error
 	 * response code.
 	 */
 	public boolean isError() {
