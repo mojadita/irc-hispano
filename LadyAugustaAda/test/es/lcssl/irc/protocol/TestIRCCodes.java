@@ -5,7 +5,6 @@ package es.lcssl.irc.protocol;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -30,6 +29,7 @@ public class TestIRCCodes {
 			} else {
 				assertTrue(c.toString(), c.isReply());
 				int code = c.getCode();
+				assertTrue(code > 0);
 				if (lastCode >= code) 
 					fail(c + " fails order assertion with code " + code);
 				lastCode = code;
