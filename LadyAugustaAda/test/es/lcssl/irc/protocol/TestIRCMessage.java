@@ -105,4 +105,15 @@ public class TestIRCMessage {
 		assertEquals(":nick!ident@host.com 411 a b c", m_iut.toString());
 	}
 	
+	@Test
+	public void testGetBytes() {
+		m_iut.setParams("a", "b", "c");
+		m_iut.setOrigin(new Origin("nick", "ident", "host.com"));
+		assertArrayEquals(
+				new byte[] {
+						':','n','i','c','k','!','i','d','e','n','t','@','h','o','s','t','.',
+						'c','o','m',' ','4','1','1',' ','a',' ','b',' ','c','\r','\n',
+				}, m_iut.getBytes());
+	}
+	
 }

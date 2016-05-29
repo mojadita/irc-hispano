@@ -14,6 +14,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertArrayEquals;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 
 import org.junit.Test;
@@ -33,7 +34,7 @@ public class TestIRCParser {
 	IRCParser iut;
 	
 	@Test
-	public void testScan() {
+	public void testScan() throws IOException {
 		iut = new IRCParser(in);
 		assertNotNull(iut);
 		IRCMessage m = iut.scan();

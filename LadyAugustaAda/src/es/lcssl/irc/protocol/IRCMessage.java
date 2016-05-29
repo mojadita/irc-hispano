@@ -184,4 +184,8 @@ public class IRCMessage extends Common {
 		}
 		return sb.toString();
 	}
+	
+	public byte[] getBytes() {
+		return (toString()+"\r\n").getBytes();
+	}
 }

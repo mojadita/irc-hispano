@@ -124,166 +124,162 @@ public class IRCParser {
 		}
 	}
 
-	public IRCMessage scan() {
+	public IRCMessage scan() throws IOException {
 		
 		int c;
 		
 		// just to ensure we are clean.
 		if (m_st == Status.INITIAL) reset();
 
-		try {
-			while ((c = m_in.read()) != -1) {
-				char ch = (char) c;
+		while ((c = m_in.read()) != -1) {
+			char ch = (char) c;
 
-				switch (m_st) {
+			switch (m_st) {
 
-				case INITIAL:
-					switch (ch) {
-					case ':': 
-						m_st = Status.ORIGIN; 
-						m_orgStr = new StringBuilder(); 
-						continue;
-					case ' ': case '\t': 
-					case '\n': 
-						continue;
-					case '\r': 
-						m_st = Status.IN_CR; 
-						continue;
-					default:
-						m_st = Status.INCODE;
-						m_codStr = new StringBuilder();
-						m_codStr.append(ch);
-						continue;
-					} 
+			case INITIAL:
+				switch (ch) {
+				case ':': 
+					m_st = Status.ORIGIN; 
+					m_orgStr = new StringBuilder(); 
+					continue;
+				case ' ': case '\t': 
+				case '\n': 
+					continue;
+				case '\r': 
+					m_st = Status.IN_CR; 
+					continue;
+				default:
+					m_st = Status.INCODE;
+					m_codStr = new StringBuilder();
+					m_codStr.append(ch);
+					continue;
+				} 
 
-				case ORIGIN:
-					switch (ch) {
-					case '\t': case ' ': 
-						m_st = Status.PRE_CODE;
-						m_origin = new Origin(m_orgStr.toString()); m_orgStr = null;
-						continue;
-					case '\r': 
-						m_st = Status.IN_CR; 
-						continue;
-					case '\n': 
-						reset(); 
-						continue;
-					default: 
-						m_orgStr.append(ch); 
-						continue;
-					}
+			case ORIGIN:
+				switch (ch) {
+				case '\t': case ' ': 
+					m_st = Status.PRE_CODE;
+					m_origin = new Origin(m_orgStr.toString()); m_orgStr = null;
+					continue;
+				case '\r': 
+					m_st = Status.IN_CR; 
+					continue;
+				case '\n': 
+					reset(); 
+					continue;
+				default: 
+					m_orgStr.append(ch); 
+					continue;
+				}
 
-				case PRE_CODE:
-					switch (ch) {
-					case ' ': case '\t': 
-						continue;
-					case '\r': 
-						m_st = Status.IN_CR; 
-						continue;
-					case '\n': 
-						reset(); 
-						continue;
-					default:
-						m_st = Status.INCODE;
-						m_codStr = new StringBuilder();
-						m_codStr.append(ch);
-						continue;
-					}
+			case PRE_CODE:
+				switch (ch) {
+				case ' ': case '\t': 
+					continue;
+				case '\r': 
+					m_st = Status.IN_CR; 
+					continue;
+				case '\n': 
+					reset(); 
+					continue;
+				default:
+					m_st = Status.INCODE;
+					m_codStr = new StringBuilder();
+					m_codStr.append(ch);
+					continue;
+				}
 
-				case INCODE:
-					switch (ch) {
-					case ' ': case '\t':
-						createTheMessage(Status.INTER_PARM);
-						continue;
-					case '\r':
-						createTheMessage(Status.IN_CR);
-						continue;
-					case '\n':
-						createTheMessage(Status.INITIAL);
-						return m_message;
-					default:
-						m_codStr.append(ch);
-						continue;
-					}
+			case INCODE:
+				switch (ch) {
+				case ' ': case '\t':
+					createTheMessage(Status.INTER_PARM);
+					continue;
+				case '\r':
+					createTheMessage(Status.IN_CR);
+					continue;
+				case '\n':
+					createTheMessage(Status.INITIAL);
+					return m_message;
+				default:
+					m_codStr.append(ch);
+					continue;
+				}
 
-				case INTER_PARM:
-					switch (ch) {
-					case ' ': case '\t':
-						continue;
-					case '\r':
-						m_st = Status.IN_CR;
-						continue;
-					case '\n':
-						m_st = Status.INITIAL;
-						return m_message;
-					case ':':
-						m_st = Status.FINAL;
-						m_parStr = new StringBuilder();
-						continue;
-					default:
-						m_st = Status.MIDDLE;
-						m_parStr = new StringBuilder();
-						m_parStr.append(ch);
-						continue;
-					}
+			case INTER_PARM:
+				switch (ch) {
+				case ' ': case '\t':
+					continue;
+				case '\r':
+					m_st = Status.IN_CR;
+					continue;
+				case '\n':
+					m_st = Status.INITIAL;
+					return m_message;
+				case ':':
+					m_st = Status.FINAL;
+					m_parStr = new StringBuilder();
+					continue;
+				default:
+					m_st = Status.MIDDLE;
+					m_parStr = new StringBuilder();
+					m_parStr.append(ch);
+					continue;
+				}
 
-				case MIDDLE:
-					switch (ch) {
-					case ' ': case '\t':
-						m_st = Status.INTER_PARM;
-						m_message.getParams().add(m_parStr.toString());
-						m_parStr = null;
-						continue;
-					case '\r':
-						m_st = Status.IN_CR;
-						m_message.getParams().add(m_parStr.toString());
-						m_parStr = null;
-						continue;
-					case '\n':
-						m_st = Status.INITIAL;
-						return m_message;
-					default:
-						m_parStr.append(ch);
-						continue;
-					}
+			case MIDDLE:
+				switch (ch) {
+				case ' ': case '\t':
+					m_st = Status.INTER_PARM;
+					m_message.getParams().add(m_parStr.toString());
+					m_parStr = null;
+					continue;
+				case '\r':
+					m_st = Status.IN_CR;
+					m_message.getParams().add(m_parStr.toString());
+					m_parStr = null;
+					continue;
+				case '\n':
+					m_st = Status.INITIAL;
+					return m_message;
+				default:
+					m_parStr.append(ch);
+					continue;
+				}
 
-				case FINAL:
-					switch (ch) {
-					case '\r':
-						m_st = Status.IN_CR;
-						m_message.getParams().add(m_parStr.toString());
-						continue;
-					case '\n':
-						m_st = Status.INITIAL;
-						m_message.getParams().add(m_parStr.toString());
-						return m_message;
-					default:
-						m_parStr.append(ch);
-						continue;
-					} 
+			case FINAL:
+				switch (ch) {
+				case '\r':
+					m_st = Status.IN_CR;
+					m_message.getParams().add(m_parStr.toString());
+					continue;
+				case '\n':
+					m_st = Status.INITIAL;
+					m_message.getParams().add(m_parStr.toString());
+					return m_message;
+				default:
+					m_parStr.append(ch);
+					continue;
+				} 
 
-				case IN_CR:
-					switch (ch) {
-					case '\n':
-						m_st = Status.INITIAL;
-						return m_message;
-					default:
-						m_st = Status.ERROR;
-						System.err.println("Syntax error: some chars between \\r and \\n");
-						continue;
-					}
-				case ERROR:
-					switch (ch) {
-					case '\n': 
-						m_st = Status.INITIAL; 
-						continue;
-					default: 
-						continue;
-					}
-				} // switch
-			} // while
-		} catch (IOException e) {
-			e.printStackTrace();
+			case IN_CR:
+				switch (ch) {
+				case '\n':
+					m_st = Status.INITIAL;
+					return m_message;
+				default:
+					m_st = Status.ERROR;
+					System.err.println("Syntax error: some chars between \\r and \\n");
+					continue;
+				}
+			case ERROR:
+				switch (ch) {
+				case '\n': 
+					m_st = Status.INITIAL; 
+					continue;
+				default: 
+					continue;
+				}
+			} // switch
 		} // while
 		return null;
 	} // scan()
