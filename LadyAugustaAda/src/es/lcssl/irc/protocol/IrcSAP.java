@@ -160,7 +160,7 @@ public class IrcSAP {
 		m_outObservable = new MyObservable();
 	}
 	
-	public void start() {
+	public void start() throws InterruptedException {
 		addInObserver(IRCCode.PING, new Observer() {
 			@Override
 			public void update(Observable o, Object arg) {
@@ -174,9 +174,13 @@ public class IrcSAP {
 		addInObserver(IRCCode.RPL_WELCOME, new Observer(){
 			@Override
 			public void update(Observable o, Object arg) {
-				m_nick = ((Event) arg).getMessage().getParams().get(0);
-				System.out.println("NICK = " + m_nick);
-				o.deleteObserver(this);
+				synchronized (IrcSAP.this) {
+					m_nick = ((Event) arg).getMessage().getParams().get(0);
+					System.out.println("NICK = " + m_nick);
+					o.deleteObserver(this);
+					IrcSAP.this.notifyAll();
+				}
+				
 			}
 		});
 		String modes = m_properties.getProperty(PROPERTY_MODES);
@@ -205,6 +209,9 @@ public class IrcSAP {
 				"0", "*", 
 				m_properties.getProperty(PROPERTY_NAME, 
 						"Countess of Lovelace, daughter of Lord Byron")));
+		synchronized(this) {
+			while (m_nick == null) wait();
+		}
 	}
 	
 	public void addInObserver(IRCCode cod, Observer obs) {

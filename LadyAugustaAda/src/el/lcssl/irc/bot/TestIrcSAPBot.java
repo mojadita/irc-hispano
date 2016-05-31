@@ -8,6 +8,8 @@
  */
 package el.lcssl.irc.bot;
 
+import es.lcssl.irc.protocol.IRCCode;
+import es.lcssl.irc.protocol.IRCMessage;
 import es.lcssl.irc.protocol.IrcSAP;
 import es.lcssl.irc.protocol.IrcSAP.Event;
 
@@ -69,7 +71,11 @@ public class TestIrcSAPBot {
 			sap.addInObserver(new Tracer(" <-- "));
 			sap.addOutObserver(new Tracer(" --> "));
 			sap.start();
+			sap.addMessage(new IRCMessage(IRCCode.JOIN, "#programacion,#literatura"));
 		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
