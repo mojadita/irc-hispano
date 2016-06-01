@@ -161,6 +161,7 @@ public class IrcSAP {
 	}
 	
 	public void start() throws InterruptedException {
+		// This observer to maintain the connection alive.
 		addInObserver(IRCCode.PING, new Observer() {
 			@Override
 			public void update(Observable o, Object arg) {
@@ -171,6 +172,7 @@ public class IrcSAP {
 				mo.getIrcSAP().addMessage(m);
 			}
 		});
+		
 		addInObserver(IRCCode.RPL_WELCOME, new Observer(){
 			@Override
 			public void update(Observable o, Object arg) {

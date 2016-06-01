@@ -62,7 +62,7 @@ public enum IRCCode {
 	RPL_STATSUPTIME(242),
 	RPL_STATSOLINE(243),
 	RPL_STATSHLINE(244),
-	RPL_STATSSLINE(245),  // mistake in RFC ???
+	RPL_STATSSLINE(245), // rfc shows 244, but irc-hispano ircd shows 245.
 	RPL_STATSPING(246),
 	RPL_STATSBLINE(247),
 	RPL_STATSDLINE(250),
