@@ -39,7 +39,6 @@ public class IrcSAP {
 	public static final String PROPERTY_NAME = "irc.user.name";
 	public static final String PROPERTY_MODES = "irc.user.modes";
 	public static final String PROPERTY_PASSWORD = "irc.user.password";
-	public static final String PROPERTY_DONTDOPONG = "irc.user.dontdopong";
 	
 	private Socket 						m_socket;
 	private InputStream 				m_in;
@@ -54,7 +53,7 @@ public class IrcSAP {
 	private MyObservable 				m_outObservable;
 	private volatile String				m_nick;
 	
-	public class Event {
+	public static class Event {
 		
 		private long 		m_timestamp;
 		private IRCMessage	m_message;

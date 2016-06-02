@@ -29,6 +29,7 @@ public class TestIrcSAPBot {
 	
 	public static final String PROPERTY_IRC_SERVER = "irc.server.address";
 	public static final String PROPERTY_IRC_PORT = "irc.server.port";
+	public static final String PROPERTY_CHANNELS = "irc.client.channels";
 
 	static Properties 	props;
 	static IrcSAP 		sap;
@@ -71,7 +72,9 @@ public class TestIrcSAPBot {
 			sap.addInObserver(new Tracer(" <-- "));
 			sap.addOutObserver(new Tracer(" --> "));
 			sap.start();
-			sap.addMessage(new IRCMessage(IRCCode.JOIN, "#programacion,#literatura"));
+			String channels = props.getProperty(PROPERTY_CHANNELS);
+			if (channels != null)
+				sap.addMessage(new IRCMessage(IRCCode.JOIN, channels));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
