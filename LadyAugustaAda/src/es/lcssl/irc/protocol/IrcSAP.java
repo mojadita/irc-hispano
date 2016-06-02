@@ -16,6 +16,7 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.EnumMap;
+import java.util.EventListener;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
@@ -52,9 +53,9 @@ public class IrcSAP {
 	private MyObservable 				m_inObservable;
 	private Map<IRCCode, MyObservable> 	m_outMap;
 	private MyObservable 				m_outObservable;
-	private volatile String				m_nick;
+	private volatile String				m_nick; 
 	
-	public class Event {
+	public static class Event {
 		
 		private long 		m_timestamp;
 		private IRCMessage	m_message;
@@ -125,7 +126,7 @@ public class IrcSAP {
 					m_out.write(m.getBytes());
 				}
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				// e.printStackTrace();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

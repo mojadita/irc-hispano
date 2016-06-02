@@ -195,4 +195,5 @@ public class Origin extends Common {
 						: isUser() ? getNick() + "!" + getIdent() + "@" + getHost()
 								: "<<UNKNOWN-" + getNick() + "!" + getIdent() + "@" + getHost() + ">>";
 	}
+
 }
