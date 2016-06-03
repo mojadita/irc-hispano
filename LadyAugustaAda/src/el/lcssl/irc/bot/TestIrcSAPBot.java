@@ -83,8 +83,8 @@ public class TestIrcSAPBot {
 					props.getProperty(PROPERTY_IRC_SERVER), 
 					Integer.decode(props.getProperty(PROPERTY_IRC_PORT, "6667")), 
 					props);
-			sap.getInputMonitor().register(new Tracer(color(33, " --> ")));
 			sap.getOutputMonitor().register(new Tracer(color(32, " <-- ")));
+			sap.getInputMonitor().register(new Tracer(color(33, " --> ")));
 				
 			sap.start();
 

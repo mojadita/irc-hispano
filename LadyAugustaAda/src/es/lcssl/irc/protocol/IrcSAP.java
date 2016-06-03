@@ -56,9 +56,17 @@ public class IrcSAP {
 	private BlockingQueue<IRCMessage> 	m_outq;
 	private OutputMonitor				m_outmonitor;
 	private InputMonitor 				m_inmonitor;
-	private volatile String				m_nick;
-	private volatile String[]			m_nickList;
-	private volatile int				m_nextToTry;
+	private String						m_nick;
+	private String[]					m_nickList;
+	private int							m_nextToTry;
+	private volatile State				m_state;
+	
+	public static enum State {
+		UNREGISTERED,
+		REGISTERED,
+		EOF,
+		ERROR,
+	}
 		
 	public class Monitor
 	extends EventGenerator<Monitor, IRCCode, IRCMessage> {
@@ -88,6 +96,11 @@ public class IrcSAP {
 				while ((m = p.scan()) != null) {
 					long timestamp = System.currentTimeMillis();
 					fireEvent(timestamp, m);
+				}
+				synchronized(IrcSAP.this) {
+					if (m_state == IrcSAP.State.UNREGISTERED)
+						m_state = IrcSAP.State.ERROR;
+					IrcSAP.this.notifyAll();
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -139,9 +152,12 @@ public class IrcSAP {
 		m_outmonitor = new OutputMonitor();
 		m_inmonitor = new InputMonitor();
 		m_nextToTry = 0;
+		m_state = State.UNREGISTERED;
 	}
 	
 	public void start() throws InterruptedException {
+		
+		if (m_state != State.UNREGISTERED) return;
 
 		// PING monitor.
 		m_inmonitor.register(IRCCode.PING, new EventListener<Monitor, IRCCode, IRCMessage>(){
@@ -161,8 +177,9 @@ public class IrcSAP {
 					Event<Monitor, IRCCode, IRCMessage> event) {
 				IRCMessage m = event.getMessage();
 				m_nick = m.getParams().get(0);
-				System.out.println("NICK == " + m_nick);
 				synchronized(IrcSAP.this) {
+					System.out.println("NICK == " + m_nick);
+					m_state = State.REGISTERED;
 					IrcSAP.this.notifyAll();
 				}
 				source.unregister(IRCCode.RPL_WELCOME, this); // don't need anymore.
@@ -177,7 +194,11 @@ public class IrcSAP {
 					Event<Monitor, IRCCode, IRCMessage> event) {
 				IRCMessage m = event.getMessage();
 				m_nick = m.getParams().get(0);
-				System.err.println("GLINE detected, exiting...");
+				synchronized(IrcSAP.this) {
+					m_state = State.ERROR;
+					System.err.println("GLINE detected, exiting...");
+					IrcSAP.this.notifyAll();
+				}
 				addMessage(new IRCMessage(IRCCode.QUIT, m_properties.getProperty(
 						PROPERTY_QUITMSG, DEFAULT_QUITMSG)));
 				source.unregister(IRCCode.ERR_YOUREBANNEDCREEP, this);
@@ -202,6 +223,11 @@ public class IrcSAP {
 				if (m_nickList == null || m_nextToTry >= m_nickList.length) {
 					addMessage(new IRCMessage(IRCCode.QUIT, m_properties.getProperty(
 							PROPERTY_QUITMSG, DEFAULT_QUITMSG)));
+					synchronized(IrcSAP.this) {
+						m_state = State.ERROR;
+						System.err.println("NICK LIST exhausted");
+						IrcSAP.this.notifyAll();
+					}
 				} else {
 					addMessage(new IRCMessage(IRCCode.NICK, m_nickList[m_nextToTry]));
 					m_nextToTry++;
@@ -232,7 +258,7 @@ public class IrcSAP {
 						"Countess of Lovelace, daughter of Lord Byron")));
 		
 		synchronized(this) {
-			while (m_nick == null) wait();
+			while (m_state == State.UNREGISTERED) wait();
 		}
 		m_inmonitor.unregister(IRCCode.ERR_ERRONEUSNICKNAME, newNickObserver);
 		m_inmonitor.unregister(IRCCode.ERR_NICKCOLLISION, newNickObserver);
