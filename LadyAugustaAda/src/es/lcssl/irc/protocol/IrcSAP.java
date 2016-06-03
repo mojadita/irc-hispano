@@ -15,10 +15,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.EnumMap;
-import java.util.Map;
-import java.util.Observable;
-import java.util.Observer;
 import java.util.Properties;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -35,53 +31,54 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class IrcSAP {
 	
 	public static final String PROPERTY_NICK = "irc.user.nick";
+	public static final String DEFAULT_NICK = "AdaAugustaLovelace";
+	
 	public static final String PROPERTY_IDENT = "irc.user.ident";
+	public static final String DEFAULT_IDENT = "ada";
+	
 	public static final String PROPERTY_NAME = "irc.user.name";
+	public static final String DEFAULT_NAME = "Daughter of Lord Byron and first programmer in History";
+	
 	public static final String PROPERTY_MODES = "irc.user.modes";
+
 	public static final String PROPERTY_PASSWORD = "irc.user.password";
+
+	public static final String PROPERTY_QUITMSG = "irc.user.quitmessage";
+	public static final String DEFAULT_QUITMSG = "Good Bye";
+
+	public static final String PROPERTY_NICKLIST = "irc.user.nicklist";
+	public static final String DEFAULT_NICKLIST = "AdaAugustaByron,AdaLovelace,AdaByron,Ada,Ada_,Ada__,Ada___";
 	
 	private Socket 						m_socket;
 	private InputStream 				m_in;
 	private OutputStream 				m_out;
 	private Properties 					m_properties;
 	private BlockingQueue<IRCMessage> 	m_outq;
-	private Thread 						m_outmonitor;
-	private Thread 						m_inmonitor;
-	private Map<IRCCode, MyObservable> 	m_inMap;
-	private MyObservable 				m_inObservable;
-	private Map<IRCCode, MyObservable> 	m_outMap;
-	private MyObservable 				m_outObservable;
+	private OutputMonitor				m_outmonitor;
+	private InputMonitor 				m_inmonitor;
 	private volatile String				m_nick;
-	
-	public static class Event {
+	private volatile String[]			m_nickList;
+	private volatile int				m_nextToTry;
 		
-		private long 		m_timestamp;
-		private IRCMessage	m_message;
-
-		public Event(long timestamp, IRCMessage message) {
-			m_timestamp = timestamp;
-			m_message = message;
+	public class Monitor
+	extends EventGenerator<Monitor, IRCCode, IRCMessage> {
+		public Monitor() {
+			super(IRCCode.class);
 		}
-		
-		public long getTimestamp() {
-			return m_timestamp;
+		public Properties getProperties() {
+			return m_properties;
 		}
-		
-		public IRCMessage getMessage() {
-			return m_message;
-		}
-	}
-	
-	private class MyObservable extends Observable {
-		public synchronized void setChanged() {
-			super.setChanged();
+		public String getNick() {
+			return m_nick;
 		}
 		public IrcSAP getIrcSAP() {
 			return IrcSAP.this;
 		}
 	}
 	
-	protected class InputMonitor implements Runnable {
+	public class InputMonitor 
+	extends Monitor 
+	{
 		@Override
 		public void run() {
 			System.out.println(getClass() + " Running...");
@@ -90,13 +87,7 @@ public class IrcSAP {
 			try {
 				while ((m = p.scan()) != null) {
 					long timestamp = System.currentTimeMillis();
-					m_inObservable.setChanged();
-					m_inObservable.notifyObservers(new Event(timestamp, m));
-					MyObservable o = m_inMap.get(m.getCode());
-					if (o != null) {
-						o.setChanged();
-						o.notifyObservers(new Event(timestamp, m));
-					}
+					fireEvent(timestamp, m);
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -106,7 +97,7 @@ public class IrcSAP {
 		}
 	}
 	
-	protected class OutputMonitor implements Runnable {
+	public class OutputMonitor extends Monitor {
 		@Override
 		public void run() {
 			System.out.println(getClass() + " Running...");
@@ -114,17 +105,11 @@ public class IrcSAP {
 				while (true) {
 					IRCMessage m = m_outq.take();
 					long timestamp = System.currentTimeMillis();
-					MyObservable o = m_outMap.get(m.getCode());
-					if (o != null) {
-						o.setChanged();
-						o.notifyObservers(new Event(timestamp,m));
-					}
-					m_outObservable.setChanged();
-					m_outObservable.notifyObservers(new Event(timestamp,m));
+					fireEvent(timestamp, m);
 					m_out.write(m.getBytes());
 				}
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				// e.printStackTrace();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -151,108 +136,115 @@ public class IrcSAP {
 		m_out = m_socket.getOutputStream();
 		m_properties = properties;
 		m_outq = new LinkedBlockingQueue<IRCMessage>();
-		m_outmonitor = new Thread(new OutputMonitor());
-		m_inmonitor = new Thread(new InputMonitor());
-		m_inMap = new EnumMap<IRCCode, MyObservable>(IRCCode.class);
-		m_outMap = new EnumMap<IRCCode, MyObservable>(IRCCode.class);
-		m_inObservable = new MyObservable();
-		m_outObservable = new MyObservable();
+		m_outmonitor = new OutputMonitor();
+		m_inmonitor = new InputMonitor();
+		m_nextToTry = 0;
 	}
 	
 	public void start() throws InterruptedException {
-		addInObserver(IRCCode.PING, new Observer() {
+
+		// PING monitor.
+		m_inmonitor.register(IRCCode.PING, new EventListener<Monitor, IRCCode, IRCMessage>(){
 			@Override
-			public void update(Observable o, Object arg) {
-				MyObservable mo = (MyObservable) o;
-				Event e = (Event) arg;
-				IRCMessage m = e.getMessage();
-				m.setCode(IRCCode.PONG);
-				mo.getIrcSAP().addMessage(m);
+			public void process(Monitor source,
+					Event<Monitor, IRCCode, IRCMessage> event) {
+				IRCMessage m = event.getMessage();
+				addMessage(new IRCMessage(IRCCode.PONG, m.getParams()));
 			}
 		});
-		addInObserver(IRCCode.RPL_WELCOME, new Observer(){
+		
+		// TO CHECK WHEN WE ARE REGISTERED OK
+		m_inmonitor.register(IRCCode.RPL_WELCOME, 
+				new EventListener<Monitor, IRCCode, IRCMessage>() {
 			@Override
-			public void update(Observable o, Object arg) {
-				synchronized (IrcSAP.this) {
-					m_nick = ((Event) arg).getMessage().getParams().get(0);
-					System.out.println("NICK = " + m_nick);
-					o.deleteObserver(this);
+			public void process(Monitor source,
+					Event<Monitor, IRCCode, IRCMessage> event) {
+				IRCMessage m = event.getMessage();
+				m_nick = m.getParams().get(0);
+				System.out.println("NICK == " + m_nick);
+				synchronized(IrcSAP.this) {
 					IrcSAP.this.notifyAll();
 				}
-				
+				source.unregister(IRCCode.RPL_WELCOME, this); // don't need anymore.
 			}
 		});
-		String modes = m_properties.getProperty(PROPERTY_MODES);
-		if (modes != null) {
-			addInObserver(IRCCode.MODE, new Observer() {
-				@Override
-				public void update(Observable o, Object arg) {
-					try {
-						Thread.sleep(200);
-						addMessage(new IRCMessage(IRCCode.MODE, m_nick, modes));
-						o.deleteObserver(this);
-					} catch (InterruptedException e) {
-					}
+		
+		// TO CHECK FOR GLINES.
+		m_inmonitor.register(IRCCode.ERR_YOUREBANNEDCREEP, 
+				new EventListener<Monitor, IRCCode, IRCMessage>() {
+			@Override
+			public void process(Monitor source,
+					Event<Monitor, IRCCode, IRCMessage> event) {
+				IRCMessage m = event.getMessage();
+				m_nick = m.getParams().get(0);
+				System.err.println("GLINE detected, exiting...");
+				addMessage(new IRCMessage(IRCCode.QUIT, m_properties.getProperty(
+						PROPERTY_QUITMSG, DEFAULT_QUITMSG)));
+				source.unregister(IRCCode.ERR_YOUREBANNEDCREEP, this);
+			}
+		});
+		
+		
+		EventListener<Monitor, IRCCode, IRCMessage> newNickObserver =
+				new EventListener<Monitor, IRCCode, IRCMessage> () {
+			@Override
+			public void process(Monitor source,
+					Event<Monitor, IRCCode, IRCMessage> event) {
+				IRCMessage m = event.getMessage();
+				System.err.println(m.getCode().name() + ": " + m.getParams().get(1));
+				if (m_nickList == null) {
+					String nicklist = m_properties.getProperty(
+							PROPERTY_NICKLIST, DEFAULT_NICKLIST);
+					m_nickList = nicklist.split(",");
+					System.out.println("NICKLIST = " + nicklist);
+					m_nextToTry = 0;
 				}
-			});
-		}
+				if (m_nickList == null || m_nextToTry >= m_nickList.length) {
+					addMessage(new IRCMessage(IRCCode.QUIT, m_properties.getProperty(
+							PROPERTY_QUITMSG, DEFAULT_QUITMSG)));
+				} else {
+					addMessage(new IRCMessage(IRCCode.NICK, m_nickList[m_nextToTry]));
+					m_nextToTry++;
+				}
+			}
+		};
+		m_inmonitor.register(IRCCode.ERR_ERRONEUSNICKNAME, newNickObserver);
+		m_inmonitor.register(IRCCode.ERR_NICKCOLLISION, newNickObserver);
+		m_inmonitor.register(IRCCode.ERR_NICKNAMEINUSE, newNickObserver);
+		
 		m_inmonitor.start();
 		m_outmonitor.start();
+		
+		// PASS message.
 		String passwd = m_properties.getProperty(PROPERTY_PASSWORD);
 		if (passwd != null)
 			addMessage(new IRCMessage(IRCCode.PASS, passwd));
-		String nick = m_properties.getProperty(PROPERTY_NICK, "LadyAugustaAda");
+		
+		// NICK message (should this ---and the next--- be changed to SERVICE ?)
+		String nick = m_properties.getProperty(PROPERTY_NICK, DEFAULT_NICK);
 		addMessage(new IRCMessage(IRCCode.NICK, nick));
+		
+		// USER message
 		addMessage(new IRCMessage(IRCCode.USER, 
 				m_properties.getProperty(PROPERTY_IDENT, "ada"),
 				"0", "*", 
 				m_properties.getProperty(PROPERTY_NAME, 
 						"Countess of Lovelace, daughter of Lord Byron")));
+		
 		synchronized(this) {
 			while (m_nick == null) wait();
 		}
+		m_inmonitor.unregister(IRCCode.ERR_ERRONEUSNICKNAME, newNickObserver);
+		m_inmonitor.unregister(IRCCode.ERR_NICKCOLLISION, newNickObserver);
+		m_inmonitor.unregister(IRCCode.ERR_NICKNAMEINUSE, newNickObserver);
 	}
 	
-	public void addInObserver(IRCCode cod, Observer obs) {
-		MyObservable o = m_inMap.get(cod);
-		if (o == null)
-			m_inMap.put(cod, o = new MyObservable());
-		o.addObserver(obs);
+	public InputMonitor getInputMonitor() {
+		return m_inmonitor;
 	}
 	
-	public void deleteInObserver(IRCCode cod, Observer obs) {
-		MyObservable o = m_inMap.get(cod);
-		if (o != null)
-			o.deleteObserver(obs);
-	}
-	
-	public void addInObserver(Observer obs) {
-		m_inObservable.addObserver(obs);
-	}
-	
-	public void deleteInObserver(Observer obs) {
-		m_inObservable.deleteObserver(obs);
-	}
-	
-	public synchronized void addOutObserver(IRCCode cod, Observer obs) {
-		MyObservable o = m_outMap.get(cod);
-		if (o == null)
-			m_outMap.put(cod, o = new MyObservable());
-		o.addObserver(obs);
-	}
-	
-	public synchronized void deleteOutObserver(IRCCode cod, Observer obs) {
-		MyObservable o = m_outMap.get(cod);
-		if (o != null)
-			o.deleteObserver(obs);
-	}
-	
-	public synchronized void addOutObserver(Observer obs) {
-		m_outObservable.addObserver(obs);
-	}
-	
-	public void deleteOutObserver(Observer obs) {
-		m_outObservable.deleteObserver(obs);
+	public OutputMonitor getOutputMonitor() {
+		return m_outmonitor;
 	}
 	
 	public void addMessage(IRCMessage m) {
