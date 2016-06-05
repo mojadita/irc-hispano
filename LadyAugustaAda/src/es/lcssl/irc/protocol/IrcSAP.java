@@ -273,6 +273,10 @@ public class IrcSAP {
 		return m_outmonitor;
 	}
 	
+	public String getNick() {
+		return m_nick;
+	}
+	
 	public void addMessage(IRCMessage m) {
 		m_outq.add(m);
 	}
