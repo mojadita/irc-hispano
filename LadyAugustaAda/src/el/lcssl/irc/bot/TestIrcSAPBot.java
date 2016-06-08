@@ -12,7 +12,10 @@ import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Properties;
+import java.util.Set;
+import java.util.TreeSet;
 
 import es.lcssl.irc.protocol.IRCCode;
 import es.lcssl.irc.protocol.IRCMessage;
@@ -53,12 +56,14 @@ public class TestIrcSAPBot {
 			
 			sap.start();
 
-			String[] admins = props.getProperty(PROPERTY_ADMINISTRATORS, "").split(",");
+			Set<String> adminsSet = new TreeSet<String>();
+			for (String s: props.getProperty(PROPERTY_ADMINISTRATORS, "").split(",")) 
+				adminsSet.add(s);
 			sap.getInputMonitor().register(
 					IRCCode.PRIVMSG, 
-					new PRIVMSGMonitor<ECHOSession>(
+					new SessionPRIVMSGMonitor<ECHOSession>(
 							sap.getNick(), 
-							admins, 
+							adminsSet, 
 							new ECHOSessionFactory()));
 			
 			String channels = props.getProperty(PROPERTY_CHANNELS);

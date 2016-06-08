@@ -3,15 +3,17 @@
  */
 package el.lcssl.irc.bot;
 
+import es.lcssl.irc.protocol.Origin;
+
 /**
  * @author lcu
  *
  */
-public class ECHOSessionFactory implements SessionFactory<ECHOSession> {
+public class ECHOSessionFactory implements SessionFactory<Origin, ECHOSession> {
 
 	@Override
 	public ECHOSession newSession(SessionManager<ECHOSession> sessionManager,
-			String sessionId) {
+			Origin sessionId) {
 		return new ECHOSession();
 	}
 

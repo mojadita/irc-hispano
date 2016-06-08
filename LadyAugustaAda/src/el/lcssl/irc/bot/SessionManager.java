@@ -14,5 +14,5 @@ import es.lcssl.irc.protocol.IrcSAP.Monitor;
  */
 public interface SessionManager<S extends Session<S>> {
 	Event<Monitor, IRCCode, IRCMessage> getEvent() throws InterruptedException;
-	String getNick();
+	String getTarget();
 }
