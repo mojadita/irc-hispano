@@ -1,4 +1,4 @@
-package el.lcssl.irc.bot;
+package el.lcssl.irc.monitors;
 
 import java.util.Collection;
 import java.util.Map;
@@ -14,14 +14,14 @@ import es.lcssl.irc.protocol.IRCMessage;
 import es.lcssl.irc.protocol.IrcSAP.Monitor;
 import es.lcssl.irc.protocol.Origin;
 
-public class SessionPRIVMSGMonitor<S extends Session<S>> implements EventListener<Monitor,IRCCode,IRCMessage> {
+public class PRIVMSGMonitor<S extends Session<S>> implements EventListener<Monitor,IRCCode,IRCMessage> {
 
-	private String m_target;
-	private Set<String> m_admins;
-	private SessionFactory<Origin, S> m_sessionFactory;
+	private String 						m_target;
+	private Set<String> 				m_admins;
+	private SessionFactory<Origin, S> 	m_sessionFactory;
 	private Map<Origin, PRIVMSGSession> m_sessions;
 
-	public SessionPRIVMSGMonitor(String target, Set<String> admins, SessionFactory<Origin, S> factory) {
+	public PRIVMSGMonitor(String target, Set<String> admins, SessionFactory<Origin, S> factory) {
 		m_target = target;
 		m_admins = admins;
 		m_sessionFactory = factory;
@@ -32,17 +32,22 @@ public class SessionPRIVMSGMonitor<S extends Session<S>> implements EventListene
 
 		private BlockingQueue<Event<Monitor, IRCCode, IRCMessage>> m_queue;
 		S m_session;
+		Origin m_origin;
+		Monitor m_monitor;
 		
-		public PRIVMSGSession(Origin key) {
+		public PRIVMSGSession(Origin key, Monitor monitor) {
 			m_queue = new LinkedBlockingQueue<Event<Monitor,IRCCode,IRCMessage>>();
 			m_session = m_sessionFactory.newSession(this, key);
+			m_origin = key;
+			m_monitor = monitor;
 			setName(key.toString() + " >>> " + m_target); // the thread name is adjusted as the session id.
+			m_sessions.put(key, this);
 		}
 		
 		public void addEvent(Event<Monitor,IRCCode,IRCMessage> e) {
 			m_queue.add(e);
 		}
-		
+
 		// methods to be used by the receiving process.
 		@Override
 		public Event<Monitor, IRCCode, IRCMessage> getEvent() throws InterruptedException {
@@ -58,9 +63,17 @@ public class SessionPRIVMSGMonitor<S extends Session<S>> implements EventListene
 		// the Session<S> interface.
 		@Override
 		public void run() {
-			m_session.run(this);
+			m_monitor.getIrcSAP().addMessage(new IRCMessage(
+					IRCCode.NOTICE, 
+					m_origin.getNick(), 
+					"Creating session " + m_origin));
+			int code = m_session.run(this);
+			m_monitor.getIrcSAP().addMessage(new IRCMessage(
+					IRCCode.NOTICE, 
+					m_origin.getNick(), 
+					"Terminating session " + m_origin + " with code " + code));
 			synchronized(m_sessions) {
-				m_sessions.remove(getName());
+				m_sessions.remove(m_origin);
 			}
 		}
 	} // PRIVMSGSession
@@ -72,12 +85,7 @@ public class SessionPRIVMSGMonitor<S extends Session<S>> implements EventListene
 				res = m_sessions.get(key); // repeat to ensure we have a dead session or inexistent.
 				if (res == null || !res.isAlive()) { // ask again in a protected environment.
 					// signal to origin we are creating a new session.
-					source.getIrcSAP().addMessage(new IRCMessage(
-							IRCCode.NOTICE, 
-							key.getNick(), 
-							"Session not found or finished for " + key + ", creating one"));
-					res = new PRIVMSGSession(key);
-					m_sessions.put(key, res);
+					res = new PRIVMSGSession(key, source);
 					res.start();
 				}
 			}
@@ -91,18 +99,21 @@ public class SessionPRIVMSGMonitor<S extends Session<S>> implements EventListene
 		
 		IRCMessage message = event.getMessage();
 		Origin origin = message.getOrigin();
-
-		if (m_admins != null && !m_admins.contains(origin.getNick())) 
-			return; // origin is not in admins for this application.
-
 		Collection<String> params = message.getParams();
-		if (params.size() < 2) 
-			return; // invalid format.
+
 		if (	   params.size() < 2 // invalid format 
 				|| message.getCode() != IRCCode.PRIVMSG  // invalid message type 
 				|| !m_target.equals(message.getParams().get(0))) // target does not match.
 			return; // not for us.
 		
+		if (m_admins != null && !m_admins.contains(origin.getNick())) {
+			source.getIrcSAP().addMessage(new IRCMessage(
+					IRCCode.NOTICE, 
+					origin.getNick(), 
+					"You are not in the list of admins"));
+			return; // origin is not in admins for this application.
+		}
+
 		PRIVMSGSession session = lookup(origin, source); // get the session.
 		session.addEvent(event); // and send the message to it.
 		

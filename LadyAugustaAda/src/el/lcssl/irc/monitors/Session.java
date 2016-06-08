@@ -1,7 +1,7 @@
 /**
  * 
  */
-package el.lcssl.irc.bot;
+package el.lcssl.irc.monitors;
 
 
 

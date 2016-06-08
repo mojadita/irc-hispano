@@ -12,11 +12,16 @@ import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 
+import el.lcssl.irc.monitors.COMMANDSession;
+import el.lcssl.irc.monitors.COMMANDSessionFactory;
+import el.lcssl.irc.monitors.ECHOSession;
+import el.lcssl.irc.monitors.ECHOSessionFactory;
+import el.lcssl.irc.monitors.PRIVMSGMonitor;
+import el.lcssl.irc.monitors.MessageTracer;
 import es.lcssl.irc.protocol.IRCCode;
 import es.lcssl.irc.protocol.IRCMessage;
 import es.lcssl.irc.protocol.IrcSAP;
@@ -47,8 +52,9 @@ public class TestIrcSAPBot {
 					props.getProperty(PROPERTY_IRC_SERVER), 
 					Integer.decode(props.getProperty(PROPERTY_IRC_PORT, "6667")), 
 					props);
-			sap.getOutputMonitor().register(new Tracer(null, Tracer.color(32, " <-- ")));
-			sap.getInputMonitor().register(new Tracer(null, Tracer.color(33, " --> ")));
+			
+			sap.getOutputMonitor().register(new MessageTracer(props, " <-- "));
+			sap.getInputMonitor().register(new MessageTracer(props, " --> "));
 
 			sap.start();
 
@@ -57,10 +63,10 @@ public class TestIrcSAPBot {
 				adminsSet.add(s);
 			sap.getInputMonitor().register(
 					IRCCode.PRIVMSG, 
-					new SessionPRIVMSGMonitor<ECHOSession>(
+					new PRIVMSGMonitor<COMMANDSession>(
 							sap.getNick(), 
 							adminsSet, 
-							new ECHOSessionFactory()));
+							new COMMANDSessionFactory(props)));
 
 			String channels = props.getProperty(PROPERTY_CHANNELS);
 			if (channels != null)
