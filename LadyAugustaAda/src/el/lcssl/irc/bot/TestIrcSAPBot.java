@@ -34,26 +34,22 @@ public class TestIrcSAPBot {
 
 	static Properties 	props;
 	static IrcSAP 		sap;
-	
+
 	public static void main(String[] args) {
 		try {
+
 			props = new Properties();
-			try {
-				props.load(new BufferedInputStream(
-						new FileInputStream(
-								TestIrcSAPBot.class.getSimpleName().toLowerCase() 
-								+ ".properties")));
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-				System.exit(1);
-			}
+			props.load(new BufferedInputStream(
+					new FileInputStream(
+							TestIrcSAPBot.class.getSimpleName().toLowerCase() 
+							+ ".properties")));
 			sap = new IrcSAP(
 					props.getProperty(PROPERTY_IRC_SERVER), 
 					Integer.decode(props.getProperty(PROPERTY_IRC_PORT, "6667")), 
 					props);
 			sap.getOutputMonitor().register(new Tracer(null, Tracer.color(32, " <-- ")));
 			sap.getInputMonitor().register(new Tracer(null, Tracer.color(33, " --> ")));
-			
+
 			sap.start();
 
 			Set<String> adminsSet = new TreeSet<String>();
@@ -65,10 +61,13 @@ public class TestIrcSAPBot {
 							sap.getNick(), 
 							adminsSet, 
 							new ECHOSessionFactory()));
-			
+
 			String channels = props.getProperty(PROPERTY_CHANNELS);
 			if (channels != null)
 				sap.addMessage(new IRCMessage(IRCCode.JOIN, channels));
+		} catch (FileNotFoundException e) {
+			System.err.println("" + e);
+			return;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
