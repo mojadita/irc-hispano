@@ -36,8 +36,13 @@ public class MessageTracer implements EventListener<Monitor,IRCCode,IRCMessage> 
 			long timestamp = event.getTimestamp();
 			if (lastMessage == 0) lastMessage = timestamp;
 			long lap = timestamp - lastMessage;
+			String fmt = "%5d.%03d";
+			if (lap < 0) {
+				lap = -lap;
+				fmt = "-" + fmt;
+			}
 			System.out.println(
-					String.format(color(36, "%5d.%03d"), lap/1000, lap%1000)
+					String.format(color(36, fmt), lap/1000, lap%1000)
 					+ color(m_label.hashCode()%7 + 31, m_label)
 					+ (m.getCode().isReply() 
 							? color(m.getCode().isError() ? 31 : 32, m.getCode().name()) + ": " 

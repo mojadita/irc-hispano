@@ -60,7 +60,7 @@ public class TestIrcSAPBot {
 
 			Set<String> adminsSet = new TreeSet<String>();
 			for (String s: props.getProperty(PROPERTY_ADMINISTRATORS, "").split(",")) 
-				adminsSet.add(s);
+				adminsSet.add(s.toLowerCase());
 			sap.getInputMonitor().register(
 					IRCCode.PRIVMSG, 
 					new PRIVMSGMonitor<COMMANDSession>(

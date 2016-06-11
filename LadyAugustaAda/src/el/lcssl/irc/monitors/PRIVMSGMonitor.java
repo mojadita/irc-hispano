@@ -106,7 +106,7 @@ public class PRIVMSGMonitor<S extends Session<S>> implements EventListener<Monit
 				|| !m_target.equals(message.getParams().get(0))) // target does not match.
 			return; // not for us.
 		
-		if (m_admins != null && !m_admins.contains(origin.getNick())) {
+		if (m_admins != null && !m_admins.contains(origin.getNick().toLowerCase())) {
 			source.getIrcSAP().addMessage(new IRCMessage(
 					IRCCode.NOTICE, 
 					origin.getNick(), 

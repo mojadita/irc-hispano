@@ -48,8 +48,10 @@ public class COMMANDSession implements Session<COMMANDSession> {
 						|| message.getParams().size() != 2)
 					continue;
 				String[] cmd = message.getParams().get(1).split("\\s+", 3);
-				Commands theCommand = Commands.valueOf(cmd[0].toUpperCase());
-				if (theCommand == null) {
+				Commands theCommand;
+				try {
+					theCommand = Commands.valueOf(cmd[0].toUpperCase());
+				} catch (Exception e) {
 					monitor.getIrcSAP().addMessage(new IRCMessage(
 							IRCCode.NOTICE, 
 							origin.getNick(), 
@@ -63,16 +65,30 @@ public class COMMANDSession implements Session<COMMANDSession> {
 							cmd[0] + ": need at least one parameter"));
 					continue;
 				}
-				IRCMessage newMessage = new IRCMessage(theCommand.code,
-						cmd[1]);
-				if (cmd.length == 3) {
-					newMessage.getParams().add(cmd[2]);
+				IRCMessage newMessage = new IRCMessage(theCommand.code);
+				switch (theCommand) {
+				case JOIN: case PART:
+					switch(cmd.length) {
+					case 3:
+						newMessage.getParams().add(cmd[1]);
+						newMessage.getParams().add(cmd[2]);
+						break;
+					case 2:
+						newMessage.getParams().add(cmd[1]);
+						break;
+					}
+					break;
+				case QUIT:
+					StringBuilder sb = new StringBuilder();
+					switch (cmd.length) {
+					case 2: newMessage.getParams().add(cmd[1]); break;
+					case 3: newMessage.getParams().add(cmd[1] + " " + cmd[2]); break;
+					}
 				}
 				monitor.getIrcSAP().addMessage(new IRCMessage(
 						IRCCode.PRIVMSG, 
 						origin.getNick(), 
-						"Executing " + newMessage + " after a delay of 13s."));
-				Thread.sleep(13000);
+						"Executing " + newMessage));
 				monitor.getIrcSAP().addMessage(newMessage);
 				if (theCommand == Commands.QUIT)
 					return 0;
