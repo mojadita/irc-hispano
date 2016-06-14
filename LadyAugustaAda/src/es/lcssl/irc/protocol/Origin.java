@@ -17,7 +17,7 @@ import java.beans.PropertyChangeListener;
  * 
  * @author Luis Colorado {@code <luiscoloradourcola@gmail.com>}
  */
-public class Origin extends Common {
+public class Origin extends Common implements Comparable<Origin> {
 
 	private static final long serialVersionUID = -4815682808442452140L;
 
@@ -196,4 +196,8 @@ public class Origin extends Common {
 								: "<<UNKNOWN-" + getNick() + "!" + getIdent() + "@" + getHost() + ">>";
 	}
 
+	@Override
+	public int compareTo(Origin o) {
+		return toString().compareToIgnoreCase(o.toString());
+	}
 }

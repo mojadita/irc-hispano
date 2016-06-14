@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
  * 
  * @author Luis Colorado {@code <lc@luiscoloradosistemas.com>}
  */
-public class IRCMessage extends Common {
+public class IRCMessage extends Common implements Message<IRCCode> {
 	
 	private static final long serialVersionUID = -8756960660302415524L;
 	
