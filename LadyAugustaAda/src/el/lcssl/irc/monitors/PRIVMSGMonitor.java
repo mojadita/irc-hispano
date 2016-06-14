@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 import es.lcssl.irc.protocol.Event;
 import es.lcssl.irc.protocol.EventListener;
@@ -51,12 +52,17 @@ public class PRIVMSGMonitor<S extends Session<S>> implements EventListener<Monit
 		// methods to be used by the receiving process.
 		@Override
 		public Event<Monitor, IRCCode, IRCMessage> getEvent() throws InterruptedException {
-			return m_queue.take();
+			return m_queue.poll();
 		}
-		
 		@Override
-		public String getTarget() {
-			return m_target;
+		public Event<Monitor, IRCCode, IRCMessage> getEvent(long timespec, TimeUnit unit) 
+				throws InterruptedException {
+			return m_queue.poll(timespec, unit);
+		}
+
+		@Override
+		public Monitor getMonitor() {
+			return m_monitor;
 		}
 
 		// Override of the run method to pass the SessionManager to the thread implementing
@@ -86,6 +92,7 @@ public class PRIVMSGMonitor<S extends Session<S>> implements EventListener<Monit
 				if (res == null || !res.isAlive()) { // ask again in a protected environment.
 					// signal to origin we are creating a new session.
 					res = new PRIVMSGSession(key, source);
+					res.setDaemon(true);
 					res.start();
 				}
 			}
