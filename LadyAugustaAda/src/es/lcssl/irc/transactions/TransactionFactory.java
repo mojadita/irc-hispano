@@ -28,7 +28,7 @@ public class TransactionFactory {
 		m_transactionQueue = new LinkedTransferQueue<Transaction>();
 	}
 	
-	public Transaction newTransaction(IRCMessage message, Monitor monitor) {
+	public Transaction newTransaction(IRCMessage message) {
 		Transaction result =  new Transaction(this, message, monitor);
 		return result;
 	}
@@ -65,8 +65,9 @@ public class TransactionFactory {
 
 		synchronized (this) {
 			Transaction top;
-			do {
-				top = m_
+			while ((top = m_transactionQueue.poll()) != null && top != transaction) {
+				for (IRCCode code: top.getRequest().getCode().getResponses()) {
+				
 			}
 			for (IRCCode code: codes) {
 				Queue<Transaction> queue = m_irccodeRegistry.get(code);

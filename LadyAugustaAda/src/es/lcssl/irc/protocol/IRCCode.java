@@ -30,7 +30,7 @@ public enum IRCCode {
 	RPL_STATMEM(10),
 	RPL_MAP(15),
 	RPL_MAPMORE(16),
-	RPL_MAPEND(17),
+	RPL_MAPEND(17, true),
 	
 	RPL_TRACELINK(200),
 	RPL_TRACECONNECTING(201),
@@ -56,7 +56,7 @@ public enum IRCCode {
 	RPL_ENDOFSERVICES(232),
 	RPL_SERVICE(233),
 	RPL_SERVLIST(234),
-	RPL_SERVLISTEND(235),
+	RPL_SERVLISTEND(235, true),
 	RPL_STATSVLINE(240),
 	RPL_STATSLLINE(241),
 	RPL_STATSUPTIME(242),
@@ -76,10 +76,10 @@ public enum IRCCode {
 	RPL_ADMINLOC2(258),
 	RPL_ADMINEMAIL(259),
 	RPL_TRACELOG(261),
-	RPL_TRACEEND(262),
+	RPL_TRACEEND(262, true),
 	RPL_TRYAGAIN(263),
-	RPL_IRCHISPANO265(265),
-	RPL_IRCHISPANO266(266),
+	RPL_LOCALUSERS(265),
+	RPL_GLOBALUSERS(266),
 	
 	RPL_NONE(300),
 	RPL_AWAY(301),
@@ -96,11 +96,11 @@ public enum IRCCode {
 	RPL_ENDOFWHO(315),
 	RPL_WHOISCHANOP(316),
 	RPL_WHOISIDLE(317),
-	RPL_ENDOFWHOIS(318),
+	RPL_ENDOFWHOIS(318, true),
 	RPL_WHOISCHANNELS(319),
 	RPL_LISTSTART(321),
 	RPL_LIST(322),
-	RPL_LISTEND(323),
+	RPL_LISTEND(323, true),
 	RPL_CHANNELMODEIS(324),
 	RPL_UNIQOPIS(325),
 	RPL_NOTOPIC(331),
@@ -117,19 +117,19 @@ public enum IRCCode {
 	RPL_NAMREPLY(353),
 	RPL_KILLDONE(361),
 	RPL_CLOSING(362),
-	RPL_CLOSEEND(363),
+	RPL_CLOSEEND(363, true),
 	RPL_LINKS(364),
-	RPL_ENDOFLINKS(365),
-	RPL_ENDOFNAMES(366),
+	RPL_ENDOFLINKS(365, true),
+	RPL_ENDOFNAMES(366, true),
 	RPL_BANLIST(367),
-	RPL_ENDOFBANLIST(368),
-	RPL_ENDOFWHOWAS(369),
+	RPL_ENDOFBANLIST(368, true),
+	RPL_ENDOFWHOWAS(369, true),
 	RPL_INFO(371),
 	RPL_MOTD(372),
 	RPL_INFOSTART(373),
-	RPL_ENDOFINFO(374),
+	RPL_ENDOFINFO(374, true),
 	RPL_MOTDSTART(375),
-	RPL_ENDOFMOTD(376),
+	RPL_ENDOFMOTD(376, true),
 	RPL_WHOISMODES(379),
 	RPL_YOUREOPER(381),
 	RPL_REHASHING(382),
@@ -138,7 +138,7 @@ public enum IRCCode {
 	RPL_TIME(391),
 	RPL_USERSSTART(392),
 	RPL_USERS(393),
-	RPL_ENDOFUSERS(394),
+	RPL_ENDOFUSERS(394, true),
 	RPL_NOUSERS(395),
 
 	// errors
@@ -308,6 +308,19 @@ public enum IRCCode {
 		m_request = false;
 		m_name = String.format("%03d", code);
 		m_final = false;
+		m_responses = null;
+	}
+	
+	/**
+	 * Constructor for replies with final specifier.  by default
+	 * replies are not final.
+	 * @param code
+	 */
+	IRCCode(int code, boolean fin) {
+		m_code = (short) code;
+		m_request = false;
+		m_name = String.format("%03d", code);
+		m_final = fin;
 		m_responses = null;
 	}
 	
