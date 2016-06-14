@@ -20,7 +20,7 @@ import java.util.TreeMap;
 public enum IRCCode {
 
 	// responses
-	RPL_WELCOME(1, true),
+	RPL_WELCOME(1),
 	RPL_YOURHOST(2),
 	RPL_CREATED(3),
 	RPL_MYINFO(4),
@@ -264,11 +264,11 @@ public enum IRCCode {
 	
 	;
 	
-	short m_code;
-	boolean m_request;
-	boolean m_final;
-	String m_name;
-	IRCCode[] m_responses;
+	private final short m_code;
+	private final boolean m_request;
+	private final boolean m_final;
+	private final String m_name;
+	private final IRCCode[] m_responses;
 	
 	private static Map<String, IRCCode> map;
 	
@@ -283,6 +283,7 @@ public enum IRCCode {
 		m_request = true;
 		m_name = name();
 		m_final = true;
+		m_responses = null;
 	}
 	
 	/**
@@ -290,7 +291,10 @@ public enum IRCCode {
 	 * to be able to configure transactions.
 	 */
 	IRCCode(IRCCode[] responses) {
-		this();
+		m_code = -1;
+		m_request = true;
+		m_name = name();
+		m_final = true;
 		m_responses = responses;
 	}
 	
@@ -303,11 +307,7 @@ public enum IRCCode {
 		m_request = false;
 		m_name = String.format("%03d", code);
 		m_final = false;
-	}
-	
-	IRCCode(int code, boolean fin) {
-		this(code);
-		m_final = fin;
+		m_responses = null;
 	}
 	
 	/**
@@ -371,6 +371,14 @@ public enum IRCCode {
 	 */
 	public boolean isReply() {
 		return !m_request;
+	}
+
+	public boolean isFinal() {
+		return m_final;
+	}
+
+	public IRCCode[] getResponses() {
+		return m_responses;
 	}
 
 } /* MessageCode */

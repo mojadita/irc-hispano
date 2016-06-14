@@ -10,27 +10,37 @@ import es.lcssl.irc.protocol.IrcSAP.Monitor;
 
 public class Transaction implements EventListener<Monitor,IRCCode,IRCMessage> {
 	
-	TransactionFactory m_factory;
-	long	   		   m_id;
-	IRCMessage         m_request;
-	Monitor	           m_monitor;
-	IRCMessage         m_response;
-	long			   m_timestamp;
+	private TransactionFactory m_factory;
+	private IRCMessage         m_request;
+	private Monitor	           m_monitor;
+	private IRCMessage         m_response;
+	private long			   m_timestamp;
 	
-	Transaction(TransactionFactory factory, long id, IRCMessage request, Monitor monitor) {
+	Transaction(TransactionFactory factory, IRCMessage request, Monitor monitor) {
 		m_factory = factory;
-		m_id = id;
 		m_request = request;
 		m_monitor = monitor;
 		m_response = null;
 		m_timestamp = System.currentTimeMillis();
 	}
+	
+	void accept(IRCMessage response) {
+		m_timestamp = System.currentTimeMillis();
+		m_response = response;
+	}
 
 	@Override
 	public void process(Monitor source,
 			Event<Monitor, IRCCode, IRCMessage> event) {
-		// TODO Auto-generated method stub
-		
+		IRCMessage response = event.getMessage();
+		// check if this is the final response we expect.
+		if ( response.getCode() == m_request.getCode() &&
+				response.getOrigin().getLowercaseNick().equals(m_monitor.getNick())
+			 ) {
+			accept(response);
+			m_factory.unregisterTransaction(this);
+			
+		}
 	}
 
 	public IRCMessage getResponse() {
@@ -39,10 +49,6 @@ public class Transaction implements EventListener<Monitor,IRCCode,IRCMessage> {
 
 	public void setResponse(IRCMessage response) {
 		m_response = response;
-	}
-
-	public long getId() {
-		return m_id;
 	}
 
 	public IRCMessage getRequest() {

@@ -26,11 +26,13 @@ public class Origin extends Common implements Comparable<Origin> {
 	public static final String PROPERTY_HOST = "host";
 
 	private String m_nick;
+	private String m_lowercaseNick;
 	private String m_ident;
 	private String m_host;
 
 	public Origin(String nick, String ident, String host) {
 		m_nick = nick;
+		m_lowercaseNick = null;
 		m_ident = ident;
 		m_host = host;
 	}
@@ -43,9 +45,11 @@ public class Origin extends Common implements Comparable<Origin> {
 			int exclPos = item.indexOf('!');
 			if (exclPos >= 0) {
 				m_nick = item.substring(0, exclPos);
+				m_lowercaseNick = null;
 				m_ident = item.substring(exclPos + 1);
 			} else {
 				m_nick = item;
+				m_lowercaseNick = null;
 			}
 		} else {
 			m_host = item;
@@ -64,6 +68,12 @@ public class Origin extends Common implements Comparable<Origin> {
 	public String getNick() {
 		return m_nick;
 	}
+	
+	public String getLowercaseNick() {
+		return m_lowercaseNick == null 
+				? m_lowercaseNick = m_nick.toLowerCase() 
+				: m_lowercaseNick;
+	}
 
 	/**
 	 * Setter for {@code String} property {@code nick}.
@@ -80,6 +90,7 @@ public class Origin extends Common implements Comparable<Origin> {
 		if (oldNick == nick)
 			return;
 		m_nick = nick;
+		m_lowercaseNick = null;
 		firePropertyChange(PROPERTY_NICK, oldNick, nick);
 	}
 
