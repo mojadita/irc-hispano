@@ -15,6 +15,7 @@ public class Transaction implements EventListener<Monitor,IRCCode,IRCMessage> {
 	IRCMessage         m_request;
 	Monitor	           m_monitor;
 	IRCMessage         m_response;
+	long			   m_timestamp;
 	
 	Transaction(TransactionFactory factory, long id, IRCMessage request, Monitor monitor) {
 		m_factory = factory;
@@ -22,6 +23,7 @@ public class Transaction implements EventListener<Monitor,IRCCode,IRCMessage> {
 		m_request = request;
 		m_monitor = monitor;
 		m_response = null;
+		m_timestamp = System.currentTimeMillis();
 	}
 
 	@Override
