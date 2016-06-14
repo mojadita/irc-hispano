@@ -22,7 +22,7 @@ public class COMMANDSessionFactory implements SessionFactory<Origin, COMMANDSess
 	@Override
 	public COMMANDSession newSession(SessionManager<COMMANDSession> sessionManager,
 			Origin sessionId) {
-		return new COMMANDSession(m_properties);
+		return new COMMANDSession(sessionId, m_properties);
 	}
 
 }
