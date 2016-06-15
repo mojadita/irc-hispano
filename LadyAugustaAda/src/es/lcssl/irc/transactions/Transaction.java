@@ -1,8 +1,15 @@
+/*
+ * Id: $Id$
+ * Author: Luis Colorado <lc@luiscoloradosistemas.com>
+ * Date: 2016-06-14 09:03:00
+ * Project: LadyAugustaAda
+ * Package: el.lcssl.irc.transactions
+ * Copyright: (C) 2016 LUIS COLORADO.  All rights reserved.
+ */
 package es.lcssl.irc.transactions;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.concurrent.TimeUnit;
 
 import es.lcssl.irc.protocol.Event;
 import es.lcssl.irc.protocol.EventListener;
