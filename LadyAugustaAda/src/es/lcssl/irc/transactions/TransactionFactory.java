@@ -20,16 +20,18 @@ import es.lcssl.irc.protocol.IrcSAP.Monitor;
  */
 public class TransactionFactory {
 
+	Monitor							 m_monitor;
 	Map<IRCCode, Queue<Transaction>> m_irccodeRegistry;
 	Queue<Transaction> 				 m_transactionQueue;
 	
-	public TransactionFactory() {
+	public TransactionFactory(Monitor monitor) {
 		m_irccodeRegistry = new EnumMap<IRCCode, Queue<Transaction>>(IRCCode.class);
 		m_transactionQueue = new LinkedTransferQueue<Transaction>();
+		m_monitor = monitor;
 	}
 	
 	public Transaction newTransaction(IRCMessage message) {
-		Transaction result =  new Transaction(this, message, monitor);
+		Transaction result =  new Transaction(this, message, m_monitor, m_monitor.getNick().toLowerCase());
 		return result;
 	}
 	
@@ -40,6 +42,9 @@ public class TransactionFactory {
 	}
 	
 	void registerTransaction(Transaction transaction) {
+		if (this != transaction.getFactory())
+			throw new IllegalArgumentException(
+					"I can only register transactions created by me.");
 		IRCCode[] codes = transaction.getRequest().getCode().getResponses();
 		// if no codes, no transaction registration.
 		if (codes == null || codes.length == 0)
