@@ -29,8 +29,7 @@ public class MessageTracer implements EventListener<Monitor,IRCCode,IRCMessage> 
 	}
 	
 	@Override
-	public void process(Monitor source,
-			Event<Monitor, IRCCode, IRCMessage> event) {
+	public void process(Event<Monitor, IRCCode, IRCMessage> event) {
 		synchronized(this.getClass()) {
 			IRCMessage m = event.getMessage();
 			long timestamp = event.getTimestamp();

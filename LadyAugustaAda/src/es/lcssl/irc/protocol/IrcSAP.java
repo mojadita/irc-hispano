@@ -69,7 +69,7 @@ public class IrcSAP {
 	}
 		
 	public class Monitor
-	extends EventGenerator<Monitor, IRCCode, IRCMessage> {
+	extends BasicEventGenerator<Monitor, IRCCode, IRCMessage> {
 		public Monitor() {
 			super(IRCCode.class);
 		}
@@ -94,19 +94,18 @@ public class IrcSAP {
 			IRCMessage m;
 			try {
 				while ((m = p.scan()) != null) {
-					long timestamp = System.currentTimeMillis();
-					fireEvent(timestamp, m);
+					fireEvent(new Event<Monitor,IRCCode,IRCMessage>(this,m));
 				}
 				synchronized(IrcSAP.this) {
 					if (m_state == IrcSAP.State.UNREGISTERED)
-						m_state = IrcSAP.State.ERROR;
+						m_state = IrcSAP.State.EOF;
 					IrcSAP.this.notifyAll();
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 			m_outmonitor.interrupt();
-			System.out.println(getClass() + " Finishing...");
+			System.out.println(this + ": Finishing...");
 		}
 	}
 	
@@ -117,8 +116,7 @@ public class IrcSAP {
 			try {
 				while (true) {
 					IRCMessage m = m_outq.take();
-					long timestamp = System.currentTimeMillis();
-					fireEvent(timestamp, m);
+					fireEvent(new Event<Monitor,IRCCode,IRCMessage>(this,m));
 					m_out.write(m.getBytes());
 				}
 			} catch (InterruptedException e) {
@@ -126,7 +124,7 @@ public class IrcSAP {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			System.out.println(getClass() + " Finishing...");
+			System.out.println(this + ": Finishing...");
 		}
 	}
 	
@@ -162,8 +160,7 @@ public class IrcSAP {
 		// PING monitor.
 		m_inmonitor.register(IRCCode.PING, new EventListener<Monitor, IRCCode, IRCMessage>(){
 			@Override
-			public void process(Monitor source,
-					Event<Monitor, IRCCode, IRCMessage> event) {
+			public void process(Event<Monitor, IRCCode, IRCMessage> event) {
 				IRCMessage m = event.getMessage();
 				addMessage(new IRCMessage(IRCCode.PONG, m.getParams()));
 			}
@@ -173,8 +170,7 @@ public class IrcSAP {
 		m_inmonitor.register(IRCCode.RPL_WELCOME, 
 				new EventListener<Monitor, IRCCode, IRCMessage>() {
 			@Override
-			public void process(Monitor source,
-					Event<Monitor, IRCCode, IRCMessage> event) {
+			public void process(Event<Monitor, IRCCode, IRCMessage> event) {
 				IRCMessage m = event.getMessage();
 				m_nick = m.getParams().get(0);
 				synchronized(IrcSAP.this) {
@@ -182,7 +178,7 @@ public class IrcSAP {
 					m_state = State.REGISTERED;
 					IrcSAP.this.notifyAll();
 				}
-				source.unregister(IRCCode.RPL_WELCOME, this); // don't need anymore.
+				event.getSource().unregister(IRCCode.RPL_WELCOME, this); // don't need anymore.
 			}
 		});
 		
@@ -190,8 +186,7 @@ public class IrcSAP {
 		m_inmonitor.register(IRCCode.ERR_YOUREBANNEDCREEP, 
 				new EventListener<Monitor, IRCCode, IRCMessage>() {
 			@Override
-			public void process(Monitor source,
-					Event<Monitor, IRCCode, IRCMessage> event) {
+			public void process(Event<Monitor, IRCCode, IRCMessage> event) {
 				IRCMessage m = event.getMessage();
 				m_nick = m.getParams().get(0);
 				synchronized(IrcSAP.this) {
@@ -201,7 +196,7 @@ public class IrcSAP {
 				}
 				addMessage(new IRCMessage(IRCCode.QUIT, m_properties.getProperty(
 						PROPERTY_QUITMSG, DEFAULT_QUITMSG)));
-				source.unregister(IRCCode.ERR_YOUREBANNEDCREEP, this);
+				event.getSource().unregister(IRCCode.ERR_YOUREBANNEDCREEP, this);
 			}
 		});
 		
@@ -209,8 +204,7 @@ public class IrcSAP {
 		EventListener<Monitor, IRCCode, IRCMessage> newNickObserver =
 				new EventListener<Monitor, IRCCode, IRCMessage> () {
 			@Override
-			public void process(Monitor source,
-					Event<Monitor, IRCCode, IRCMessage> event) {
+			public void process(Event<Monitor, IRCCode, IRCMessage> event) {
 				IRCMessage m = event.getMessage();
 				System.err.println(m.getCode().name() + ": " + m.getParams().get(1));
 				if (m_nickList == null) {

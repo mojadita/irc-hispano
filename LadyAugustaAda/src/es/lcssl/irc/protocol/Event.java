@@ -19,13 +19,13 @@ public class Event<
 	private M			m_message;
 
 	public Event(long timestamp, EG source, M message) {
-		this(source, message);
 		m_timestamp = timestamp;
-	}
-	
-	protected Event(EG source, M message) {
 		m_source = source;
 		m_message = message;
+	}
+	
+	public Event(EG source, M message) {
+		this(System.currentTimeMillis(), source, message);
 	}
 	
 	public long getTimestamp() {

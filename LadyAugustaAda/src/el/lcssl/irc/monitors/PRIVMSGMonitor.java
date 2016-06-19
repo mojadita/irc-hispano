@@ -101,11 +101,11 @@ public class PRIVMSGMonitor<S extends Session<S>> implements EventListener<Monit
 	}
 	
 	@Override
-	public void process(Monitor source,
-			Event<Monitor, IRCCode, IRCMessage> event) {
+	public void process(Event<Monitor, IRCCode, IRCMessage> event) {
 		
-		IRCMessage message = event.getMessage();
-		Origin origin = message.getOrigin();
+		Monitor source 			  = event.getSource();
+		IRCMessage message 		  = event.getMessage();
+		Origin origin 			  = message.getOrigin();
 		Collection<String> params = message.getParams();
 
 		if (	   params.size() < 2 // invalid format 
@@ -123,6 +123,5 @@ public class PRIVMSGMonitor<S extends Session<S>> implements EventListener<Monit
 
 		PRIVMSGSession session = lookup(origin, source); // get the session.
 		session.addEvent(event); // and send the message to it.
-		
 	}
 }
