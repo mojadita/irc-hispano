@@ -12,9 +12,6 @@ import java.util.Collection;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.LinkedTransferQueue;
 
 import es.lcssl.irc.protocol.Event;
 import es.lcssl.irc.protocol.EventGenerator;
@@ -22,9 +19,8 @@ import es.lcssl.irc.protocol.EventListener;
 import es.lcssl.irc.protocol.IRCCode;
 import es.lcssl.irc.protocol.IRCMessage;
 import es.lcssl.irc.protocol.IrcSAP;
-import es.lcssl.irc.protocol.Origin;
-import es.lcssl.irc.protocol.TypedEventRegistrar;
 import es.lcssl.irc.protocol.IrcSAP.Monitor;
+import es.lcssl.irc.protocol.Origin;
 
 /**
  * @author Luis Colorado {@code <luiscoloradourcola@gmail.com>}
