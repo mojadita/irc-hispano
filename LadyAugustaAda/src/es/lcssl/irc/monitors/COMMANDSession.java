@@ -88,14 +88,19 @@ public class COMMANDSession implements Session<COMMANDSession> {
 						origin.getNick(), 
 						"Sending [" + newMessage + "]"));
 				Transaction tx = monitor.getIrcSAP().getTransactionFactory().newTransaction(newMessage);
-				tx.execute();
+				tx.execute(5000);
 				Collection<Event<TransactionFactory, IRCCode, IRCMessage>> events = tx.getEvents();
-				for (Event<TransactionFactory,IRCCode,IRCMessage> ev: events) {
-					monitor.getIrcSAP().addMessage(
-							new IRCMessage(
-									IRCCode.PRIVMSG, 
-									origin.getNick(), 
-									"[" + ev.getTimestamp() + "]: " + ev.getMessage()));
+				if (events == null || events.isEmpty()) {
+					monitor.getIrcSAP().addMessage(new IRCMessage(IRCCode.PRIVMSG,
+							origin.getNick(), tx + ": TIMEOUT!!!"));
+				} else {
+					for (Event<TransactionFactory,IRCCode,IRCMessage> ev: events) {
+						monitor.getIrcSAP().addMessage(
+								new IRCMessage(
+										IRCCode.PRIVMSG, 
+										origin.getNick(), 
+										"[" + ev.getTimestamp() + "]: " + ev.getMessage()));
+					}
 				}
 			}
 			sessionManager.getMonitor().getIrcSAP().addMessage(new IRCMessage(IRCCode.NOTICE,
