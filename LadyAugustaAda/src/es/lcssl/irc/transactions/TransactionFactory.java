@@ -187,6 +187,17 @@ implements
 		return result;
 	}
 
+	private void register(IRCCode resp, Transaction listener) {
+//		System.out.println("  code = " + resp);
+		List<Transaction> list = m_irccodeRegistry.get(resp);
+		if (list == null) {
+//			System.out.println("adding handler for " + resp);
+			list = new ArrayList<Transaction>(4);
+			m_irccodeRegistry.put(resp, list);
+			m_sap.getInputMonitor().register(resp, TransactionFactory.this);
+		}
+		list.add((Transaction) listener);
+	}
 	/**
 	 * @param type
 	 * @param listener
@@ -194,24 +205,32 @@ implements
 	 */
 	private void register(Transaction listener) {
 		synchronized (m_irccodeRegistry) {
-			IRCCode[] responses = listener.getRequest().getCode().getResponses();
+			IRCCode code = listener.getRequest().getCode();
+			IRCCode[] responses = code.getResponses();
 			if (responses != null) {
-				System.out.println("  register " + listener);
+//				System.out.println("  register " + listener);
+				boolean registerCommand = true;
 				for (IRCCode resp: responses) {
-					System.out.println("  code = " + resp);
-					List<Transaction> list = m_irccodeRegistry.get(resp);
-					if (list == null) {
-						System.out.println("adding handler for " + resp);
-						list = new ArrayList<Transaction>(4);
-						m_irccodeRegistry.put(resp, list);
-						m_sap.getInputMonitor().register(resp, TransactionFactory.this);
-					}
-					list.add((Transaction) listener);
+					register(resp, listener);
+					if (!resp.isError() && resp.isReply() && resp.isFinal())
+						registerCommand = false;
 				} // for
+				if (registerCommand) 
+					register(code, listener);
 			}
 		} // synchronized
 	} // register(Transaction)
 
+	private void unregister(IRCCode resp, Transaction listener) {
+//		System.out.println("  code = " + resp);
+		List<Transaction> list = m_irccodeRegistry.get(resp);
+		if (list != null && list.size() > 0 && list.remove(listener)) {
+//			System.out.println("  deleting handler for " + resp);
+			m_irccodeRegistry.remove(resp);
+			m_sap.getInputMonitor().unregister(resp, this); // we don't use it more.
+		} // if
+	}
+	
 	/**
 	 * @param type
 	 * @param listener
@@ -219,17 +238,17 @@ implements
 	 */
 	private void unregister(Transaction listener) {
 		synchronized (m_irccodeRegistry) {
-			IRCCode[] codes = listener.getRequest().getCode().getResponses();
-			System.out.println("  unregister " + listener);
-			for (IRCCode resp : codes) {
-				System.out.println("  code = " + resp);
-				List<Transaction> list = m_irccodeRegistry.get(resp);
-				if (list != null && list.size() > 0 && list.remove(listener)) {
-					System.out.println("  deleting handler for " + resp);
-					m_irccodeRegistry.remove(resp);
-					m_sap.getInputMonitor().unregister(resp, this); // we don't use it more.
-				} // if
+			IRCCode code = listener.getRequest().getCode();
+			IRCCode[] responses = code.getResponses();
+//			System.out.println("  unregister " + listener);
+			boolean unregisterCommand = true;
+			for (IRCCode resp : responses) {
+				unregister(resp, listener);
+				if (!resp.isError() && resp.isReply() && resp.isFinal())
+					unregisterCommand = false;
 			} // for
+			if (unregisterCommand)
+				unregister(code, listener);
 		} // synchronized
 	} // unregister(Transaction)
 
@@ -251,7 +270,7 @@ implements
 			if (list != null) { // get the head of the list and process it.
 				list.get(0).process(eventDown);
 			} else {
-				System.out.println("WARNING: spurious " + code + " message received at " + this + ", ignored");
+				System.err.println("WARNING: spurious " + code + " message received at " + this + ", ignored");
 				// unregister to not receive more messages of this kind.
 				monitor.unregister(code, this);
 			} // if/else

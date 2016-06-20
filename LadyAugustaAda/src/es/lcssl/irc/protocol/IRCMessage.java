@@ -176,7 +176,7 @@ public class IRCMessage extends Common implements Message<IRCCode> {
 		boolean notDoneBefore = true;
 		for (String p: getParams()) {
 			sb.append(" ");
-			if (notDoneBefore && hasSpaces.matcher(p).matches()) {
+			if (notDoneBefore && (p.equals("") || p.charAt(0) == ':' || hasSpaces.matcher(p).matches())) {
 				notDoneBefore = false;
 				sb.append(":");
 			}

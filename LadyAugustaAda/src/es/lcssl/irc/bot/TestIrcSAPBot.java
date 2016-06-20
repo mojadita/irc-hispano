@@ -23,7 +23,6 @@ import es.lcssl.irc.monitors.PRIVMSGMonitor;
 import es.lcssl.irc.protocol.IRCCode;
 import es.lcssl.irc.protocol.IRCMessage;
 import es.lcssl.irc.protocol.IrcSAP;
-import es.lcssl.irc.transactions.TransactionFactory;
 
 /**
  * @author Luis Colorado {@code <lc@luiscoloradosistemas.com>}

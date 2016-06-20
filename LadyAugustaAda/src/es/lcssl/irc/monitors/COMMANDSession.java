@@ -88,7 +88,7 @@ public class COMMANDSession implements Session<COMMANDSession> {
 						origin.getNick(), 
 						"Sending [" + newMessage + "]"));
 				Transaction tx = monitor.getIrcSAP().getTransactionFactory().newTransaction(newMessage);
-				tx.execute(5000);
+				tx.execute(15000);
 				Collection<Event<TransactionFactory, IRCCode, IRCMessage>> events = tx.getEvents();
 				if (events == null || events.isEmpty()) {
 					monitor.getIrcSAP().addMessage(new IRCMessage(IRCCode.PRIVMSG,
@@ -99,7 +99,9 @@ public class COMMANDSession implements Session<COMMANDSession> {
 								new IRCMessage(
 										IRCCode.PRIVMSG, 
 										origin.getNick(), 
-										"[" + ev.getTimestamp() + "]: " + ev.getMessage()));
+										"[" + ev.getTimestamp() + "]: "
+										+ (ev.getMessage().getCode().isReply() ? ev.getMessage().getCode() + ": " : "")
+										+ ev.getMessage()));
 					}
 				}
 			}
