@@ -19,6 +19,8 @@ import java.util.Properties;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import es.lcssl.irc.transactions.TransactionFactory;
+
 /**
  * IRC Service Access Point.
  * 
@@ -60,6 +62,7 @@ public class IrcSAP {
 	private String[]					m_nickList;
 	private int							m_nextToTry;
 	private volatile State				m_state;
+	private TransactionFactory			m_transactionFactory;
 	
 	public static enum State {
 		UNREGISTERED,
@@ -145,6 +148,7 @@ public class IrcSAP {
 		m_socket = new Socket(host, port);
 		m_in = new BufferedInputStream(m_socket.getInputStream());
 		m_out = m_socket.getOutputStream();
+		m_transactionFactory = new TransactionFactory(this);
 		m_properties = properties;
 		m_outq = new LinkedBlockingQueue<IRCMessage>();
 		m_outmonitor = new OutputMonitor();
@@ -269,6 +273,10 @@ public class IrcSAP {
 	
 	public String getNick() {
 		return m_nick;
+	}
+	
+	public TransactionFactory getTransactionFactory() {
+		return m_transactionFactory;
 	}
 	
 	public void addMessage(IRCMessage m) {

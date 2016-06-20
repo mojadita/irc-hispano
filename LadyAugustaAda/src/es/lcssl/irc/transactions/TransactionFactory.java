@@ -39,9 +39,7 @@ implements
 	public TransactionFactory(IrcSAP sap) {
 		m_nextId = 0;
 		m_sap = sap;
-		m_irccodeRegistry = 
-				new EnumMap<IRCCode, List<Transaction>>(
-						IRCCode.class);
+		m_irccodeRegistry = new EnumMap<IRCCode, List<Transaction>>(IRCCode.class);
 		System.out.println("new " + this);
 	}
 
@@ -102,38 +100,18 @@ implements
 				switch (m_state) {
 				case IDLE:
 					System.out.println("start " + this);
-					IRCCode code = m_request.getCode();
-					System.out.println("  code = " + code);
-					for (IRCCode resp: code.getResponses()) {
-						System.out.println("  response = " + resp);
-						register(resp, this);
-					}
+					register(this);
 					m_state = TransactionState.STARTED;
 					// then, send the command.
 					m_sap.addMessage(m_request);
 					break;
 				default:
 					throw new IllegalStateException(
-							this + " is in illegal state " + m_state);
+							this + " is in illegal state " 
+							+ m_state + " to be started");
 				} // switch
 			} // synchronized
 		} // start()
-
-		private void end() {
-			System.out.println("Unregistering " + this);
-			for (IRCCode resp: m_request.getCode().getResponses()) {
-				System.out.println("  deleting " + resp);
-				List<Transaction> list = m_irccodeRegistry.get(resp);
-				if (list.remove(this)) {
-					System.out.println("  deleted");
-					if (list.size() == 0) {
-						System.out.println(" unregistering from sap");
-						m_sap.getInputMonitor().unregister(resp, TransactionFactory.this);
-						m_irccodeRegistry.remove(resp);
-					} // if
-				} // if
-			} // for
-		} // end
 
 		@Override
 		public void process(Event<TransactionFactory,IRCCode,IRCMessage> event) 
@@ -146,19 +124,19 @@ implements
 					&& origin.getNick().equalsIgnoreCase(m_sap.getNick())) 
 				{
 					m_events.add(event);
-					end();
+					unregister(this);
 					m_state = TransactionState.ENDED;
 					m_irccodeRegistry.notifyAll();
 				} else if (code.isError()) {
 					m_events.add(event);
-					end();
+					unregister(this);
 					m_state = TransactionState.ERROR;
 					m_irccodeRegistry.notifyAll();
 				} else if (code.isReply()) {
 					m_events.add(event);
 					if (code.isFinal()) {
 						// reply is final, we have to finish transaction.
-						end();
+						unregister(this);
 						m_state = TransactionState.ENDED;
 						m_irccodeRegistry.notifyAll();
 					}
@@ -214,26 +192,44 @@ implements
 	 * @param listener
 	 * @see es.lcssl.irc.protocol.EventGenerator#register(java.lang.Enum, es.lcssl.irc.protocol.EventListener)
 	 */
-	private void register(IRCCode type, EventListener<TransactionFactory, IRCCode, IRCMessage> listener) {
-		List<Transaction> list = m_irccodeRegistry.get(type);
-		if (list == null) {
-			System.out.println("adding handler for " + type);
-			list = new ArrayList<Transaction>(4);
-			m_irccodeRegistry.put(type, list);
-			m_sap.getInputMonitor().register(type, TransactionFactory.this);
-		}
-		list.add((Transaction) listener);
-	}
+	private void register(Transaction listener) {
+		synchronized (m_irccodeRegistry) {
+			IRCCode[] codes = listener.getRequest().getCode().getResponses();
+			System.out.println("  register " + listener);
+			for (IRCCode resp: codes) {
+				System.out.println("  code = " + resp);
+				List<Transaction> list = m_irccodeRegistry.get(resp);
+				if (list == null) {
+					System.out.println("adding handler for " + resp);
+					list = new ArrayList<Transaction>(4);
+					m_irccodeRegistry.put(resp, list);
+					m_sap.getInputMonitor().register(resp, TransactionFactory.this);
+				}
+				list.add((Transaction) listener);
+			} // for
+		} // synchronized
+	} // register(Transaction)
 
 	/**
 	 * @param type
 	 * @param listener
 	 * @see es.lcssl.irc.protocol.EventGenerator#unregister(java.lang.Enum, es.lcssl.irc.protocol.EventListener)
 	 */
-	private void unregister(IRCCode type, EventListener<TransactionFactory, IRCCode, IRCMessage> listener) {
-		// TODO Auto-generated method stub
-		
-	}
+	private void unregister(Transaction listener) {
+		synchronized (m_irccodeRegistry) {
+			IRCCode[] codes = listener.getRequest().getCode().getResponses();
+			System.out.println("  unregister " + listener);
+			for (IRCCode resp : codes) {
+				System.out.println("  code = " + resp);
+				List<Transaction> list = m_irccodeRegistry.get(resp);
+				if (list != null && list.size() > 0 && list.remove(listener)) {
+					System.out.println("  deleting handler for " + resp);
+					m_irccodeRegistry.remove(resp);
+					m_sap.getInputMonitor().unregister(resp, this); // we don't use it more.
+				} // if
+			} // for
+		} // synchronized
+	} // unregister(Transaction)
 
 	/**
 	 * @param source
@@ -242,13 +238,13 @@ implements
 	 */
 	@Override
 	public void process(Event<Monitor, IRCCode, IRCMessage> event) {
-		long timestamp = event.getTimestamp();
-		Monitor monitor = event.getSource();
-		IRCMessage message = event.getMessage();
-		IRCCode code = message.getCode();
-		Event<TransactionFactory,IRCCode,IRCMessage> eventDown =
-				new Event<TransactionFactory,IRCCode,IRCMessage>(timestamp, this, message);
 		synchronized (m_irccodeRegistry) {
+			long timestamp = event.getTimestamp();
+			Monitor monitor = event.getSource();
+			IRCMessage message = event.getMessage();
+			IRCCode code = message.getCode();
+			Event<TransactionFactory,IRCCode,IRCMessage> eventDown =
+					new Event<TransactionFactory,IRCCode,IRCMessage>(timestamp, this, message);
 			List<Transaction> list = m_irccodeRegistry.get(code);
 			if (list != null) { // get the head of the list and process it.
 				list.get(0).process(eventDown);
@@ -256,8 +252,7 @@ implements
 				System.out.println("WARNING: spurious " + code + " message received at " + this + ", ignored");
 				// unregister to not receive more messages of this kind.
 				monitor.unregister(code, this);
-			}
-		}
-	}
-	
-}
+			} // if/else
+		} // synchronized
+	} // process(Event<Monitor,IRCCode,IRCMessage>)
+} // TransactionFactory
