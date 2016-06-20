@@ -1,7 +1,7 @@
 /**
  * 
  */
-package el.lcssl.irc.monitors;
+package es.lcssl.irc.monitors;
 
 import java.util.Collection;
 import java.util.Properties;

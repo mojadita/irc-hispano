@@ -1,7 +1,7 @@
 /**
  * 
  */
-package el.lcssl.irc.monitors;
+package es.lcssl.irc.monitors;
 
 import es.lcssl.irc.protocol.Event;
 import es.lcssl.irc.protocol.IRCCode;

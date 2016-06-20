@@ -6,7 +6,7 @@
  * Package: el.lcssl.irc.bot
  * Copyright: (C) 2016 LUIS COLORADO.  All rights reserved.
  */
-package el.lcssl.irc.bot;
+package es.lcssl.irc.bot;
 
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
@@ -16,10 +16,10 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 
-import el.lcssl.irc.monitors.COMMANDSession;
-import el.lcssl.irc.monitors.COMMANDSessionFactory;
-import el.lcssl.irc.monitors.MessageTracer;
-import el.lcssl.irc.monitors.PRIVMSGMonitor;
+import es.lcssl.irc.monitors.COMMANDSession;
+import es.lcssl.irc.monitors.COMMANDSessionFactory;
+import es.lcssl.irc.monitors.MessageTracer;
+import es.lcssl.irc.monitors.PRIVMSGMonitor;
 import es.lcssl.irc.protocol.IRCCode;
 import es.lcssl.irc.protocol.IRCMessage;
 import es.lcssl.irc.protocol.IrcSAP;
