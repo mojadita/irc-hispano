@@ -100,8 +100,8 @@ implements
 				switch (m_state) {
 				case IDLE:
 					System.out.println("start " + this);
-					register(this);
 					m_state = TransactionState.STARTED;
+					register(this);
 					// then, send the command.
 					m_sap.addMessage(m_request);
 					break;
@@ -162,7 +162,7 @@ implements
 
 		public void waitToFinish() throws InterruptedException {
 			synchronized (m_irccodeRegistry) {
-				while (!isFinished()) wait();
+				while (!isFinished()) m_irccodeRegistry.wait();
 			}
 		}
 
@@ -194,19 +194,21 @@ implements
 	 */
 	private void register(Transaction listener) {
 		synchronized (m_irccodeRegistry) {
-			IRCCode[] codes = listener.getRequest().getCode().getResponses();
-			System.out.println("  register " + listener);
-			for (IRCCode resp: codes) {
-				System.out.println("  code = " + resp);
-				List<Transaction> list = m_irccodeRegistry.get(resp);
-				if (list == null) {
-					System.out.println("adding handler for " + resp);
-					list = new ArrayList<Transaction>(4);
-					m_irccodeRegistry.put(resp, list);
-					m_sap.getInputMonitor().register(resp, TransactionFactory.this);
-				}
-				list.add((Transaction) listener);
-			} // for
+			IRCCode[] responses = listener.getRequest().getCode().getResponses();
+			if (responses != null) {
+				System.out.println("  register " + listener);
+				for (IRCCode resp: responses) {
+					System.out.println("  code = " + resp);
+					List<Transaction> list = m_irccodeRegistry.get(resp);
+					if (list == null) {
+						System.out.println("adding handler for " + resp);
+						list = new ArrayList<Transaction>(4);
+						m_irccodeRegistry.put(resp, list);
+						m_sap.getInputMonitor().register(resp, TransactionFactory.this);
+					}
+					list.add((Transaction) listener);
+				} // for
+			}
 		} // synchronized
 	} // register(Transaction)
 

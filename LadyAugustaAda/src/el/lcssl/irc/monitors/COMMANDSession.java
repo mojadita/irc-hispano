@@ -3,6 +3,7 @@
  */
 package el.lcssl.irc.monitors;
 
+import java.util.Collection;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
@@ -11,6 +12,9 @@ import es.lcssl.irc.protocol.IRCCode;
 import es.lcssl.irc.protocol.IRCMessage;
 import es.lcssl.irc.protocol.IrcSAP.Monitor;
 import es.lcssl.irc.protocol.Origin;
+import es.lcssl.irc.transactions.IllegalStateException;
+import es.lcssl.irc.transactions.TransactionFactory;
+import es.lcssl.irc.transactions.TransactionFactory.Transaction;
 
 /**
  * @author lcu
@@ -83,11 +87,22 @@ public class COMMANDSession implements Session<COMMANDSession> {
 						IRCCode.PRIVMSG, 
 						origin.getNick(), 
 						"Sending [" + newMessage + "]"));
-				monitor.getIrcSAP().addMessage(newMessage);
+				Transaction tx = monitor.getIrcSAP().getTransactionFactory().newTransaction(newMessage);
+				tx.execute();
+				Collection<Event<TransactionFactory, IRCCode, IRCMessage>> events = tx.getEvents();
+				for (Event<TransactionFactory,IRCCode,IRCMessage> ev: events) {
+					monitor.getIrcSAP().addMessage(
+							new IRCMessage(
+									IRCCode.PRIVMSG, 
+									origin.getNick(), 
+									"[" + ev.getTimestamp() + "]: " + ev.getMessage()));
+				}
 			}
 			sessionManager.getMonitor().getIrcSAP().addMessage(new IRCMessage(IRCCode.NOTICE,
 					m_origin.getNick(), "TIMEOUT!!!"));
 		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} catch (IllegalStateException e) {
 			e.printStackTrace();
 		}
 		return 0;
