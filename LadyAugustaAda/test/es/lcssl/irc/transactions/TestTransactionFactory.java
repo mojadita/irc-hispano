@@ -14,6 +14,7 @@ import org.junit.Test;
 
 import es.lcssl.irc.protocol.IRCCode;
 import es.lcssl.irc.protocol.IRCMessage;
+import es.lcssl.irc.protocol.IrcSAP;
 import es.lcssl.irc.transactions.TransactionFactory.Transaction;
 
 /**
@@ -26,6 +27,7 @@ public class TestTransactionFactory {
 	TransactionFactory iut;
 	IRCMessage m;
 	Transaction t;
+	IrcSAP sap;
 	
 	@Before
 	public void beforeTests() {
@@ -42,10 +44,18 @@ public class TestTransactionFactory {
 	}
 	
 	@Test
-	public void testNewTransaction() {
+	public void testNewTransactionInitialState() throws IllegalStateException, InterruptedException {
 		iut = new TransactionFactory(null);
 		t = iut.newTransaction(m);
 		assertNotNull(t);
+		assertEquals(TransactionState.IDLE, t.getState());
+		assertSame(iut, t.getFactory());
+		assertEquals(0L, t.getId());
+		assertSame(m, t.getRequest());
+		assertNotNull(t.getEvents());
+		assertTrue(t.getEvents().isEmpty());
+		assertTrue(t.getResponses().isEmpty());
+		t.execute(1000);
 	}
 	
 	

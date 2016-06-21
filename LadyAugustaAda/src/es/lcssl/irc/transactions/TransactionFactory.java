@@ -23,6 +23,14 @@ import es.lcssl.irc.protocol.IrcSAP.Monitor;
 import es.lcssl.irc.protocol.Origin;
 
 /**
+ * The transaction factory. This class produces and controls transactions in
+ * association with an {@link IrcSAP} instance.
+ * 
+ * Transaction acquisition is being made through a
+ * {@link #newTransaction(IRCMessage)} method, which instantiates the
+ * transaction and allows it to access the shared info between transactions.
+ * 
+ * 
  * @author Luis Colorado {@code <luiscoloradourcola@gmail.com>}
  *
  */
@@ -187,14 +195,14 @@ implements
 		return result;
 	}
 
-	private void register(IRCCode resp, Transaction listener) {
+	private void register(IRCCode response, Transaction listener) {
 //		System.out.println("  code = " + resp);
-		List<Transaction> list = m_irccodeRegistry.get(resp);
+		List<Transaction> list = m_irccodeRegistry.get(response);
 		if (list == null) {
 //			System.out.println("adding handler for " + resp);
 			list = new ArrayList<Transaction>(4);
-			m_irccodeRegistry.put(resp, list);
-			m_sap.getInputMonitor().register(resp, TransactionFactory.this);
+			m_irccodeRegistry.put(response, list);
+			m_sap.getInputMonitor().register(response, TransactionFactory.this);
 		}
 		list.add((Transaction) listener);
 	}
