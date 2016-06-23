@@ -48,7 +48,7 @@ implements
 		m_nextId = 0;
 		m_sap = sap;
 		m_irccodeRegistry = new EnumMap<IRCCode, List<Transaction>>(IRCCode.class);
-		System.out.println("new " + this);
+//		System.out.println("new " + this);
 	}
 
 	public class Transaction 
@@ -65,10 +65,10 @@ implements
 			synchronized(TransactionFactory.this) {
 				m_id = m_nextId++;
 			}
-			System.out.println("new " + this);
 			m_request       = request;
 			m_events	    = new ArrayList<Event<TransactionFactory,IRCCode,IRCMessage>>();
 			m_state         = TransactionState.IDLE;
+//			System.out.println("new " + this);
 		}
 
 		/**
@@ -107,7 +107,7 @@ implements
 			synchronized (m_irccodeRegistry) {
 				switch (m_state) {
 				case IDLE:
-					System.out.println("start " + this);
+//					System.out.println("start " + this);
 					m_state = TransactionState.STARTED;
 					register(this);
 					// then, send the command.
@@ -186,7 +186,9 @@ implements
 		
 		@Override
 		public String toString() {
-			return TransactionFactory.this.toString() + "[" + getId() + "]";
+			return TransactionFactory.this.toString() 
+					+ "[" + getRequest().getCode() 
+					+ "-" + getId() + "]";
 		}
 	} // Transaction
 
@@ -196,21 +198,17 @@ implements
 	}
 
 	private void register(IRCCode response, Transaction listener) {
-//		System.out.println("  code = " + resp);
+//		System.out.println("  code = " + response);
 		List<Transaction> list = m_irccodeRegistry.get(response);
 		if (list == null) {
-//			System.out.println("adding handler for " + resp);
+//			System.out.println("adding handler for " + response);
 			list = new ArrayList<Transaction>(4);
 			m_irccodeRegistry.put(response, list);
 			m_sap.getInputMonitor().register(response, TransactionFactory.this);
 		}
 		list.add((Transaction) listener);
 	}
-	/**
-	 * @param type
-	 * @param listener
-	 * @see es.lcssl.irc.protocol.EventGenerator#register(java.lang.Enum, es.lcssl.irc.protocol.EventListener)
-	 */
+	
 	private void register(Transaction listener) {
 		synchronized (m_irccodeRegistry) {
 			IRCCode code = listener.getRequest().getCode();
@@ -232,7 +230,7 @@ implements
 	private void unregister(IRCCode resp, Transaction listener) {
 //		System.out.println("  code = " + resp);
 		List<Transaction> list = m_irccodeRegistry.get(resp);
-		if (list != null && list.size() > 0 && list.remove(listener)) {
+		if (list != null && list.size() > 0 && list.remove(listener) && list.size() == 0) {
 //			System.out.println("  deleting handler for " + resp);
 			m_irccodeRegistry.remove(resp);
 			m_sap.getInputMonitor().unregister(resp, this); // we don't use it more.
@@ -240,7 +238,6 @@ implements
 	}
 	
 	/**
-	 * @param type
 	 * @param listener
 	 * @see es.lcssl.irc.protocol.EventGenerator#unregister(java.lang.Enum, es.lcssl.irc.protocol.EventListener)
 	 */
@@ -261,7 +258,6 @@ implements
 	} // unregister(Transaction)
 
 	/**
-	 * @param source
 	 * @param event
 	 * @see es.lcssl.irc.protocol.EventListener#process(es.lcssl.irc.protocol.Event)
 	 */
@@ -275,10 +271,11 @@ implements
 			Event<TransactionFactory,IRCCode,IRCMessage> eventDown =
 					new Event<TransactionFactory,IRCCode,IRCMessage>(timestamp, this, message);
 			List<Transaction> list = m_irccodeRegistry.get(code);
-			if (list != null) { // get the head of the list and process it.
+			if (list != null && list.size() > 0) { // get the head of the list and process it.
 				list.get(0).process(eventDown);
 			} else {
-				System.err.println("WARNING: spurious " + code + " message received at " + this + ", ignored");
+				System.err.println("WARNING: spurious " + code + " message received at " 
+						+ this + ", ignored");
 				// unregister to not receive more messages of this kind.
 				monitor.unregister(code, this);
 			} // if/else
