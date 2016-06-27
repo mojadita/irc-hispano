@@ -8,6 +8,6 @@
  */
 package es.lcssl.irc.protocol;
 
-public interface Message<T> {
+public interface Message<T extends Enum<T>> {
 	T getCode();
 }
