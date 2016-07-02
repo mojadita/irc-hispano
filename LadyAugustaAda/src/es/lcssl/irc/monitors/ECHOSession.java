@@ -7,6 +7,8 @@ import es.lcssl.irc.protocol.Event;
 import es.lcssl.irc.protocol.IRCCode;
 import es.lcssl.irc.protocol.IRCMessage;
 import es.lcssl.irc.protocol.IrcSAP.Monitor;
+import es.lcssl.sessions.Session;
+import es.lcssl.sessions.SessionManager;
 
 /**
  * @author lcu

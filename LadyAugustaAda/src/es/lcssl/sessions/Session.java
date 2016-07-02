@@ -1,24 +1,59 @@
-/* $Id$
- * Author: Luis Colorado <lc@luiscoloradosistemas.com
- * Date: 27 de jun. de 2016 21:07:48.
- * Project: LadyAugustaAda
- * Package: es.lcssl.sessions
- * Disclaimer: (C) 2016 LUIS COLORADO.  All rights reserved.
+/**
+ * 
  */
 package es.lcssl.sessions;
 
-import java.util.Collection;
+import es.lcssl.irc.protocol.Event;
 
 /**
+ * A {@link Session} is a {@link Thread} with some specific inteface to be able
+ * to get {@link Event}s from the {@link SessionManager} and process them.
+ * <p>
+ * {@link Session}s must implement a {@link #run(SessionManager)} method which
+ * is run in an independent {@link Thread}. The {@link SessionManager} acts as a
+ * demultiplexor of incoming events and dispatches them to the proper
+ * {@link Session} instance by means of its input queue. The instances must call
+ * {@link SessionManager#getEvent()} or
+ * {@link SessionManager#getEvent(long, java.util.concurrent.TimeUnit)} methods,
+ * to get access to the input {@link Event}s.
  * 
+ * @author lcu
  *
- * @author Luis Colorado {@code <lc@luiscoloradosistemas.com>}
  */
 public interface Session<
-		SF extends SessionFactory<SF, K, S>, 
+		SF extends SessionFactory<SF, SM, K, S>, 
+		SM extends SessionManager<SF, SM, K, S>, 
 		K extends Comparable<? super K>, 
-		S extends Session<SF, K, S>> 
+		S extends Session<SF, SM, K, S>> 
 {
+
+	/**
+	 * The method that executes while this {@link Session} is active. The
+	 * {@link Session} will be active for the whole duration of this method
+	 * execution and will die once the method finishes execution.
+	 * 
+	 * @param abstractSessionManager
+	 *            The {@link SessionManager} in charge of this {@link Session}.
+	 *            It uses the {@link SessionManager} to get access to the input
+	 *            events.
+	 * @return termination code for the {@link SessionManager}. What the
+	 *         {@link SessionManager} does with this code is implementation
+	 *         dependant.
+	 */
+	int run(SessionManager<SF, SM, K, S> sessionManager);
+
+	/**
+	 * @return the {@code K key} attribute for this {@link Session}.
+	 */
 	K getKey();
+
+	/**
+	 * @return the {@link SessionManager} controlling this {@link Session}.
+	 */
+	SM getSessionManager();
+
+	/**
+	 * @return the reference to the {@link SessionFactory} that created this {@link Session}.
+	 */
 	SF getSessionFactory();
 }

@@ -4,6 +4,8 @@
 package es.lcssl.irc.monitors;
 
 import es.lcssl.irc.protocol.Origin;
+import es.lcssl.sessions.SessionFactory;
+import es.lcssl.sessions.SessionManager;
 
 /**
  * @author lcu

@@ -1,12 +1,13 @@
 /* $Id$
  * Author: Luis Colorado <lc@luiscoloradosistemas.com
- * Date: 27 de jun. de 2016 22:20:00.
+ * Date: 2 de jul. de 2016 21:17:03.
  * Project: LadyAugustaAda
- * Package: es.lcssl.sessions
+ * Package: es.lcssl.irc.monitors
  * Disclaimer: (C) 2016 LUIS COLORADO.  All rights reserved.
  */
 package es.lcssl.sessions;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.TreeMap;
@@ -17,47 +18,46 @@ import java.util.TreeMap;
  * @author Luis Colorado {@code <lc@luiscoloradosistemas.com>}
  */
 public abstract class AbstractSessionFactory<
-		SF extends SessionFactory<SF,K,S>, 
+		SF extends AbstractSessionFactory<SF, SM, K, S>, 
+		SM extends SessionManager<SF, SM, K, S>, 
 		K extends Comparable<? super K>, 
-		S extends AbstractSession<SF, K, S>>
-implements SessionFactory<SF, K, S>
-{
-	Map<K, S> m_sessions;
+		S extends Session<SF, SM, K, S>> 
+extends Thread
+implements SessionFactory<SF, SM, K, S> {
+
+	private Map<K, SM> m_sessionManagers;
 	
 	public AbstractSessionFactory() {
-		m_sessions = new TreeMap<K, S>();
+		m_sessionManagers = new TreeMap<K, SM>();
 	}
 	
-	/**
-	 * @param sessionKey
-	 * @return
-	 */
-	protected abstract S newSession(K sessionKey);
+	protected abstract SM newSessionManager(S session);
+	protected abstract S newSession(K key);
 
 	/**
-	 * @param sessionKey
-	 * @return
-	 * @see es.lcssl.sessions.SessionFactory#lookup(java.lang.Comparable)
+	 * @see es.lcssl.sessions.SessionFactory#lookupSession(java.lang.Comparable)
 	 */
 	@Override
-	public S lookup(K sessionKey) {
-		S result = m_sessions.get(sessionKey);
-		if (result == null) {
-			result = newSession(sessionKey);
+	public S lookupSession(K key) {
+		SM sessionManager = m_sessionManagers.get(key);
+		if (sessionManager == null) { // no sessionManager ==> no session at all.
+			sessionManager = newSessionManager(newSession(key));
+			Thread thread = new Thread(sessionManager);
+			thread.setName(thread + "[" + key + "]");
+			thread.start();
+			// now, let's allow the world to see it.
+			m_sessionManagers.put(key, sessionManager);
 		}
-		return result;
+		return sessionManager.getSession();
 	}
 
 	/**
-	 * @param sessionKey
-	 * @see es.lcssl.sessions.SessionFactory#cancel(java.lang.Comparable)
+	 * @return
+	 * @see es.lcssl.sessions.SessionFactory#getSessionManagers()
 	 */
 	@Override
-	public void cancel(K sessionKey) {
-		S target = m_sessions.get(sessionKey);
-		if (target == null) return;
-		target.cancel();
-		m_sessions.remove(sessionKey);
+	public Collection<SM> getSessionManagers() {
+		return m_sessionManagers.values();
 	}
 
 	/**
@@ -65,8 +65,10 @@ implements SessionFactory<SF, K, S>
 	 * @see es.lcssl.sessions.SessionFactory#getSessions()
 	 */
 	@Override
-	public Collection<S> getSessions() {
-		return m_sessions.values();
+	public synchronized Collection<S> getSessions() {
+		ArrayList<S> values = new ArrayList<S>();
+		for (SM sessionManager: m_sessionManagers.values())
+			values.add(sessionManager.getSession());
+		return values;
 	}
-
 }

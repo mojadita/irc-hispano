@@ -15,6 +15,8 @@ import es.lcssl.irc.protocol.Origin;
 import es.lcssl.irc.transactions.IllegalStateException;
 import es.lcssl.irc.transactions.TransactionFactory;
 import es.lcssl.irc.transactions.TransactionFactory.Transaction;
+import es.lcssl.sessions.Session;
+import es.lcssl.sessions.SessionManager;
 
 /**
  * @author lcu

@@ -6,6 +6,8 @@ package es.lcssl.irc.monitors;
 import java.util.Properties;
 
 import es.lcssl.irc.protocol.Origin;
+import es.lcssl.sessions.SessionFactory;
+import es.lcssl.sessions.SessionManager;
 
 /**
  * @author lcu
