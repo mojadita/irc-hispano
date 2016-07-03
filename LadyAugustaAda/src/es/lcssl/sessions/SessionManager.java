@@ -3,8 +3,6 @@
  */
 package es.lcssl.sessions;
 
-import java.util.Collection;
-import java.util.Queue;
 import java.util.concurrent.TimeUnit;
 
 import es.lcssl.irc.protocol.Event;
@@ -54,6 +52,8 @@ extends Runnable
 	 * @return the corresponding {@link Session}.
 	 */
 	S getSession();
+	
+	void setSession(S session);
 	
 	/**
 	 * @return the corresponding {@link SessionFactory}.

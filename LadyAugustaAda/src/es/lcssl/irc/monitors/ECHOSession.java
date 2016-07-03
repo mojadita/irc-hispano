@@ -1,28 +1,47 @@
-/**
- * 
+/* $Id$
+ * Author: Luis Colorado <lc@luiscoloradosistemas.com
+ * Date: 3 de jul. de 2016 21:34:06.
+ * Project: LadyAugustaAda
+ * Package: es.lcssl.irc.monitors
+ * Disclaimer: (C) 2016 LUIS COLORADO.  All rights reserved.
  */
 package es.lcssl.irc.monitors;
 
+import es.lcssl.irc.monitors.ECHOSessionFactory.ECHOSessionManager;
 import es.lcssl.irc.protocol.Event;
 import es.lcssl.irc.protocol.IRCCode;
 import es.lcssl.irc.protocol.IRCMessage;
 import es.lcssl.irc.protocol.IrcSAP.Monitor;
+import es.lcssl.irc.protocol.Origin;
 import es.lcssl.sessions.Session;
-import es.lcssl.sessions.SessionManager;
 
 /**
- * @author lcu
+ * 
  *
+ * @author Luis Colorado {@code <lc@luiscoloradosistemas.com>}
  */
-public class ECHOSession implements Session<ECHOSession> {
+public class ECHOSession 
+implements Session<ECHOSessionFactory, ECHOSessionManager, Origin, ECHOSession> {
+	
+	private Origin m_origin;
+	private ECHOSessionManager m_sessionManager;
+	
+	public ECHOSession(Origin key) {
+		m_origin = key; 
+	}
 
+	/**
+	 * @param sessionManager
+	 * @return
+	 * @see es.lcssl.sessions.Session#run(es.lcssl.sessions.SessionManager)
+	 */
 	@Override
-	public int run(SessionManager<ECHOSession> sessionManager) {
+	public int run() {
 		try {
 			long oldTimestamp = 0;
 			Event<Monitor,IRCCode,IRCMessage> event = null; 
 			for (int i = 0; i < 10; i++) {
-				event = sessionManager.getEvent();
+				event = getSessionManager().getEvent();
 				Monitor monitor = event.getSource();
 				long timestamp = event.getTimestamp();
 				if (oldTimestamp == 0) oldTimestamp = timestamp;
@@ -40,12 +59,48 @@ public class ECHOSession implements Session<ECHOSession> {
 						IRCCode.NOTICE, 
 						event.getMessage().getOrigin().getNick(),
 						">>> SESSION FINISHED " + event.getMessage().getOrigin()));
-				
+
 			}
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return 0;
 	}
+
+	/**
+	 * @return
+	 * @see es.lcssl.sessions.Session#getKey()
+	 */
+	@Override
+	public Origin getKey() {
+		return m_origin;
+	}
+
+	/**
+	 * @return
+	 * @see es.lcssl.sessions.Session#getSessionManager()
+	 */
+	@Override
+	public ECHOSessionManager getSessionManager() {
+		return m_sessionManager;
+	}
+
+	/**
+	 * @return
+	 * @see es.lcssl.sessions.Session#getSessionFactory()
+	 */
+	@Override
+	public ECHOSessionFactory getSessionFactory() {
+		return m_sessionManager.getSessionFactory();
+	}
+
+	/**
+	 * @param sessionManager
+	 * @see es.lcssl.sessions.Session#setSessionManager(es.lcssl.sessions.SessionManager)
+	 */
+	@Override
+	public void setSessionManager(ECHOSessionManager sessionManager) {
+		m_sessionManager = sessionManager;
+	}
+
 }

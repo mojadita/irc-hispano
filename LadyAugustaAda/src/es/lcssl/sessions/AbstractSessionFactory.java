@@ -22,7 +22,6 @@ public abstract class AbstractSessionFactory<
 		SM extends SessionManager<SF, SM, K, S>, 
 		K extends Comparable<? super K>, 
 		S extends Session<SF, SM, K, S>> 
-extends Thread
 implements SessionFactory<SF, SM, K, S> {
 
 	private Map<K, SM> m_sessionManagers;
@@ -31,7 +30,7 @@ implements SessionFactory<SF, SM, K, S> {
 		m_sessionManagers = new TreeMap<K, SM>();
 	}
 	
-	protected abstract SM newSessionManager(S session);
+	protected abstract SM newSessionManager();
 	protected abstract S newSession(K key);
 
 	/**
@@ -41,12 +40,21 @@ implements SessionFactory<SF, SM, K, S> {
 	public S lookupSession(K key) {
 		SM sessionManager = m_sessionManagers.get(key);
 		if (sessionManager == null) { // no sessionManager ==> no session at all.
-			sessionManager = newSessionManager(newSession(key));
-			Thread thread = new Thread(sessionManager);
-			thread.setName(thread + "[" + key + "]");
-			thread.start();
-			// now, let's allow the world to see it.
-			m_sessionManagers.put(key, sessionManager);
+			synchronized(m_sessionManagers) {
+				sessionManager = m_sessionManagers.get(key);
+				if (sessionManager == null) {
+					System.out.println("CREATING session [" + key + "]");
+					S session = newSession(key);
+					sessionManager = newSessionManager();
+					session.setSessionManager(sessionManager);
+					sessionManager.setSession(session);
+					Thread thread = new Thread(sessionManager);
+					thread.setName(thread + "[" + key + "]");
+					thread.start();
+					// now, let's allow the world to see it.
+					m_sessionManagers.put(key, sessionManager);
+				}
+			}
 		}
 		return sessionManager.getSession();
 	}
@@ -57,7 +65,9 @@ implements SessionFactory<SF, SM, K, S> {
 	 */
 	@Override
 	public Collection<SM> getSessionManagers() {
-		return m_sessionManagers.values();
+		synchronized(m_sessionManagers) {
+			return m_sessionManagers.values();
+		}
 	}
 
 	/**
@@ -65,9 +75,10 @@ implements SessionFactory<SF, SM, K, S> {
 	 * @see es.lcssl.sessions.SessionFactory#getSessions()
 	 */
 	@Override
-	public synchronized Collection<S> getSessions() {
+	public Collection<S> getSessions() {
+		Collection<SM> sessionManagers = getSessionManagers();
 		ArrayList<S> values = new ArrayList<S>();
-		for (SM sessionManager: m_sessionManagers.values())
+		for (SM sessionManager: sessionManagers)
 			values.add(sessionManager.getSession());
 		return values;
 	}

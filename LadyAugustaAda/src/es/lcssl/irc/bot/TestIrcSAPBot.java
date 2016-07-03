@@ -13,13 +13,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Properties;
-import java.util.Set;
-import java.util.TreeSet;
 
-import es.lcssl.irc.monitors.COMMANDSession;
-import es.lcssl.irc.monitors.COMMANDSessionFactory;
+import es.lcssl.irc.monitors.ECHOSessionFactory;
 import es.lcssl.irc.monitors.MessageTracer;
-import es.lcssl.irc.monitors.PRIVMSGMonitor;
 import es.lcssl.irc.protocol.IRCCode;
 import es.lcssl.irc.protocol.IRCMessage;
 import es.lcssl.irc.protocol.IrcSAP;
@@ -56,15 +52,18 @@ public class TestIrcSAPBot {
 
 			sap.start();
 
-			Set<String> adminsSet = new TreeSet<String>();
-			for (String s: props.getProperty(PROPERTY_ADMINISTRATORS, "").split(",")) 
-				adminsSet.add(s.toLowerCase());
-			sap.getInputMonitor().register(
-					IRCCode.PRIVMSG, 
-					new PRIVMSGMonitor<COMMANDSession>(
-							sap.getNick(), 
-							adminsSet, 
-							new COMMANDSessionFactory(props)));
+//			Set<String> adminsSet = new TreeSet<String>();
+//			for (String s: props.getProperty(PROPERTY_ADMINISTRATORS, "").split(",")) 
+//				adminsSet.add(s.toLowerCase());
+//			sap.getInputMonitor().register(
+//					IRCCode.PRIVMSG, 
+//					new PRIVMSGMonitor<COMMANDSession>(
+//							sap.getNick(), 
+//							adminsSet, 
+//							new COMMANDSessionFactory(props)));
+			
+			ECHOSessionFactory echoSessionFactory = new ECHOSessionFactory(sap, props);
+			echoSessionFactory.setup();
 
 			String channels = props.getProperty(PROPERTY_CHANNELS);
 			if (channels != null)

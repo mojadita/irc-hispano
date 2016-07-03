@@ -34,15 +34,16 @@ implements SessionManager<SF, SM, K, S>
 	private int m_exitCode;
 	private BlockingQueue<Event<Monitor, IRCCode, IRCMessage>> m_queue;
 	
-	public AbstractSessionManager(SF sessionFactory, S session) {
+	public AbstractSessionManager(SF sessionFactory) {
 		m_sessionFactory = sessionFactory;
-		m_session = session;
 		m_queue = new LinkedBlockingQueue<Event<Monitor, IRCCode, IRCMessage>>();
 	}
 
 	@Override
 	public void run() {
-		m_exitCode = m_session.run(this);
+		System.out.println("BEGIN session: " + getName());
+		m_exitCode = m_session.run();
+		System.out.println("END session: " + getName() + " with code " + m_exitCode);
 	}
 
 	@Override
@@ -84,5 +85,14 @@ implements SessionManager<SF, SM, K, S>
 	 */
 	public Thread getThread() {
 		return this;
+	}
+
+	/**
+	 * @param session
+	 * @see es.lcssl.sessions.SessionManager#setSession(es.lcssl.sessions.Session)
+	 */
+	@Override
+	public void setSession(S session) {
+		m_session = session;
 	}
 }

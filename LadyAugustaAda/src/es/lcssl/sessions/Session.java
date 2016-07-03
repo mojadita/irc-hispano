@@ -40,7 +40,7 @@ public interface Session<
 	 *         {@link SessionManager} does with this code is implementation
 	 *         dependant.
 	 */
-	int run(SessionManager<SF, SM, K, S> sessionManager);
+	int run();
 
 	/**
 	 * @return the {@code K key} attribute for this {@link Session}.
@@ -51,6 +51,12 @@ public interface Session<
 	 * @return the {@link SessionManager} controlling this {@link Session}.
 	 */
 	SM getSessionManager();
+	
+	/**
+	 * @param sessionManager the {@link SessionManager} to set the 
+	 * {@code sessionManager} attribute.
+	 */
+	void setSessionManager(SM sessionManager);
 
 	/**
 	 * @return the reference to the {@link SessionFactory} that created this {@link Session}.
