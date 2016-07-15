@@ -1,6 +1,6 @@
 /*
- * Id: $Id$
- * Author: Luis Colorado <lc@luiscoloradosistemas.com>
+ * $Id$
+ * Author: Luis Colorado <luiscoloradourcola@gmail.com>
  * Date: 29 de may. de 2016, 9:07:35
  * Project: LadyAugustaAda
  * Package: el.lcssl.irc.bot
@@ -14,7 +14,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Properties;
 
-import es.lcssl.irc.monitors.ECHOSessionFactory;
 import es.lcssl.irc.monitors.MessageTracer;
 import es.lcssl.irc.protocol.IRCCode;
 import es.lcssl.irc.protocol.IRCMessage;
@@ -47,8 +46,7 @@ public class TestIrcSAPBot {
 					Integer.decode(props.getProperty(PROPERTY_IRC_PORT, "6667")), 
 					props);
 			
-			sap.getOutputMonitor().register(new MessageTracer(props, " <-- "));
-			sap.getInputMonitor().register(new MessageTracer(props, " --> "));
+			new MessageTracer(sap, props);
 
 			sap.start();
 
@@ -62,8 +60,8 @@ public class TestIrcSAPBot {
 //							adminsSet, 
 //							new COMMANDSessionFactory(props)));
 			
-			ECHOSessionFactory echoSessionFactory = new ECHOSessionFactory(sap, props);
-			echoSessionFactory.setup();
+			//ECHOSessionFactory echoSessionFactory = new ECHOSessionFactory(sap, props);
+			//echoSessionFactory.setup();
 
 			String channels = props.getProperty(PROPERTY_CHANNELS);
 			if (channels != null)
@@ -71,10 +69,7 @@ public class TestIrcSAPBot {
 		} catch (FileNotFoundException e) {
 			System.err.println("" + e);
 			return;
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InterruptedException e) {
+		} catch (IOException | InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

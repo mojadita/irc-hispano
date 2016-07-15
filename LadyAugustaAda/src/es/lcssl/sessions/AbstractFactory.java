@@ -56,13 +56,6 @@ implements Factory<F, K, S>,
 	 * @return the {@code K key} corresponding to the session this event relates to.
 	 */
 	protected abstract K getSessionKey(Event<Monitor, IRCCode, IRCMessage> event);
-	
-	/**
-	 * Delegate method to construct a new event from the one we received from the {@link Monitor}.
-	 * @param oldEvent is the event we received.
-	 * @return is a properly constructed event with data translated from the {@code oldEvent}
-	 */
-	protected abstract Event<Monitor, IRCCode, IRCMessage> newEvent(Event<Monitor, IRCCode, IRCMessage> oldEvent);
 
 	/**
 	 * @see es.lcssl.sessions.Factory#lookupSession(java.lang.Comparable)

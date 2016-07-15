@@ -10,13 +10,13 @@ import es.lcssl.irc.protocol.IRCCode;
 import es.lcssl.irc.protocol.IRCMessage;
 import es.lcssl.irc.protocol.IrcSAP.Monitor;
 import es.lcssl.irc.protocol.Origin;
-import es.lcssl.sessions.AbstractSessionFactory;
+import es.lcssl.sessions.AbstractFactory;
 import es.lcssl.sessions.AbstractSessionManager;
 import es.lcssl.sessions.Session;
 
 public abstract class PRIVMSGMonitor<
 		S extends Session<PRIVMSGMonitor<S>,PRIVMSGMonitor<S>.PRIVMSGSession,Origin,S>> 
-extends AbstractSessionFactory<PRIVMSGMonitor<S>, PRIVMSGMonitor<S>.PRIVMSGSession, Origin, S>
+extends AbstractFactory<PRIVMSGMonitor<S>, PRIVMSGMonitor<S>.PRIVMSGSession, Origin, S>
 implements EventListener<Monitor,IRCCode,IRCMessage> {
 
 	private String 						m_target;

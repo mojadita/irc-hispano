@@ -1,53 +1,62 @@
 package es.lcssl.irc.monitors;
 
+import java.util.Date;
 import java.util.Properties;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import es.lcssl.irc.protocol.Event;
 import es.lcssl.irc.protocol.EventListener;
 import es.lcssl.irc.protocol.IRCCode;
 import es.lcssl.irc.protocol.IRCMessage;
+import es.lcssl.irc.protocol.IrcSAP;
 import es.lcssl.irc.protocol.IrcSAP.Monitor;
 
-public class MessageTracer implements EventListener<Monitor,IRCCode,IRCMessage> {
+public class MessageTracer 
+extends Thread
+implements EventListener<Monitor,IRCCode,IRCMessage>
+{
 	
 	public static final String PROPERTY_COLORFORMAT = "irc.client.colorformat";
 
-	static long lastMessage;
-	String m_label;
+	BlockingQueue<Event<Monitor, IRCCode, IRCMessage>> m_queue;
 	Properties m_props;
+	IrcSAP m_sap;
+	long lastTimestamp = 0;
 
-	public MessageTracer(Properties props, String label) {
-		m_label = label;
+	public MessageTracer(IrcSAP sap, Properties props) {
+		m_sap = sap;
 		m_props = props;
-	}
-	
-	public String color(int num, String s) {
-		String format = m_props.getProperty(PROPERTY_COLORFORMAT);
-		if (format != null)
-			return String.format(format, num, s);
-		else return s;
+		m_queue = new LinkedBlockingQueue<Event<Monitor,IRCCode,IRCMessage>>();
+		m_sap.getInputMonitor().register(this);
+		m_sap.getOutputMonitor().register(this);
+		setDaemon(true);
+		start();
 	}
 	
 	@Override
 	public void process(Event<Monitor, IRCCode, IRCMessage> event) {
-		synchronized(this.getClass()) {
-			IRCMessage m = event.getMessage();
-			long timestamp = event.getTimestamp();
-			if (lastMessage == 0) lastMessage = timestamp;
-			long lap = timestamp - lastMessage;
-			String fmt = "%5d.%03d";
-			if (lap < 0) {
-				lap = -lap;
-				fmt = "-" + fmt;
+		m_queue.add(event);
+	}
+	
+	@Override
+	public void run() {
+		try {
+			for (;;) {
+				Event<Monitor, IRCCode, IRCMessage> ev = m_queue.take();
+				long timestamp = ev.getTimestamp();
+				long lap = lastTimestamp == 0 ? 0 : timestamp - lastTimestamp;
+				System.out.println((ev.getSource() == m_sap.getInputMonitor() ? "--> " : "<-- ")
+						+ new Date(ev.getTimestamp()) 
+						+ String.format(" (%5d.%03d)", lap / 1000, lap % 1000)
+						+ ": " + (ev.getMessage().getCode().isReply() 
+								? ev.getMessage().getCode() + " " 
+								: "") 
+						+ ev.getMessage());
+				lastTimestamp = timestamp;
 			}
-			System.out.println(
-					String.format(color(36, fmt), lap/1000, lap%1000)
-					+ color(m_label.hashCode()%7 + 31, m_label)
-					+ (m.getCode().isReply() 
-							? color(m.getCode().isError() ? 31 : 32, m.getCode().name()) + ": " 
-							: "")
-					+ m);
-			lastMessage = timestamp;
+		} catch (InterruptedException e) {
+			System.out.println(this + " interrupted, ending.");
 		}
 	}
 }

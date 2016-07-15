@@ -87,10 +87,10 @@ implements Session<ECHOSessionFactory, ECHOSessionManager, Origin, ECHOSession> 
 
 	/**
 	 * @return
-	 * @see es.lcssl.sessions.Session#getSessionFactory()
+	 * @see es.lcssl.sessions.Session#getFactory()
 	 */
 	@Override
-	public ECHOSessionFactory getSessionFactory() {
+	public ECHOSessionFactory getFactory() {
 		return m_sessionManager.getSessionFactory();
 	}
 

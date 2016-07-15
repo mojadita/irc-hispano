@@ -3,6 +3,8 @@
  */
 package es.lcssl.sessions;
 
+import java.util.Properties;
+
 /**
  * @author lcu
  *
@@ -15,10 +17,12 @@ implements  Session<F, K, S>
 {
 	K m_key;
 	F m_factory;
+	Properties m_properties;
 	
-	protected AbstractSession(F factory, K key) {
+	protected AbstractSession(F factory, K key, Properties properties) {
 		m_key = key;
 		m_factory = factory;
+		m_properties = properties;
 	}
 
 	@Override
@@ -30,4 +34,9 @@ implements  Session<F, K, S>
 	public F getFactory() {
 		return m_factory;
 	}
+	
+	public Properties getProperties() {
+		return m_properties;
+	}
+	
 }

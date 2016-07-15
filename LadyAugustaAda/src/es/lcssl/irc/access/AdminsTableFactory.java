@@ -1,5 +1,5 @@
 /* $Id$
- * Author: Luis Colorado <lc@luiscoloradosistemas.com
+ * Author: Luis Colorado <luiscoloradourcola@gmail.com>
  * Date: 25 de jun. de 2016 11:54:49.
  * Project: LadyAugustaAda
  * Package: es.lcssl.irc.access
@@ -11,7 +11,8 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 /**
- * 
+ * {@link AdminsTableFactory} is a hierarchical {@link TreeMap} extension
+ * to allow for scoped searches.
  *
  * @author Luis Colorado {@code <lc@luiscoloradosistemas.com>}
  */

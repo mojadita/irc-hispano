@@ -12,15 +12,14 @@ import es.lcssl.irc.protocol.IRCMessage;
 import es.lcssl.irc.protocol.IrcSAP;
 import es.lcssl.irc.protocol.IrcSAP.Monitor;
 import es.lcssl.irc.protocol.Origin;
-import es.lcssl.sessions.AbstractSessionFactory;
-import es.lcssl.sessions.AbstractSessionManager;
+import es.lcssl.sessions.AbstractFactory;
 
 /**
  * @author lcu
  *
  */
 public class ECHOSessionFactory 
-extends AbstractSessionFactory<
+extends AbstractFactory<
 			ECHOSessionFactory, 
 			ECHOSessionFactory.ECHOSessionManager, 
 			Origin, 
@@ -57,7 +56,7 @@ implements EventListener<Monitor,IRCCode,IRCMessage>
 	/**
 	 * @param key
 	 * @return
-	 * @see es.lcssl.sessions.AbstractSessionFactory#newSession(java.lang.Comparable)
+	 * @see es.lcssl.sessions.AbstractFactory#newSession(java.lang.Comparable)
 	 */
 	@Override
 	protected ECHOSession newSession(Origin key) {

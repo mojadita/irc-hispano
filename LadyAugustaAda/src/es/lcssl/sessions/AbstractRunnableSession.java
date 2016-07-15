@@ -3,6 +3,7 @@
  */
 package es.lcssl.sessions;
 
+import java.util.Properties;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -23,14 +24,14 @@ extends AbstractSession<F, K, S>
 implements Runnable 
 {
 
-	protected BlockingQueue<Event<Monitor, IRCCode, IRCMessage>> m_inputQueue;
+	private BlockingQueue<Event<Monitor, IRCCode, IRCMessage>> m_inputQueue;
 	
 	/**
 	 * @param factory
 	 * @param key
 	 */
-	protected AbstractRunnableSession(F factory, K key) {
-		super(factory, key);
+	protected AbstractRunnableSession(F factory, K key, Properties properties) {
+		super(factory, key, properties);
 		m_inputQueue = new LinkedBlockingQueue<Event<Monitor, IRCCode, IRCMessage>>();
 	}
 

@@ -15,26 +15,26 @@ import es.lcssl.irc.protocol.Origin;
 import es.lcssl.irc.transactions.IllegalStateException;
 import es.lcssl.irc.transactions.TransactionFactory;
 import es.lcssl.irc.transactions.TransactionFactory.Transaction;
-import es.lcssl.sessions.Session;
-import es.lcssl.sessions.SessionManager;
+import es.lcssl.sessions.AbstractRunnableSession;
 
 /**
  * @author lcu
  *
  */
-public class COMMANDSession implements Session<COMMANDSession> {
+public class COMMANDSession 
+extends AbstractRunnableSession<COMMANDSessionFactory, Origin, COMMANDSession> 
+{
 	
 	public static final String PROPERTY_TIMEOUT = "irc.command.timeout";
 
-	private Origin 		m_origin;
 	private Properties 	m_properties;
 	private long		m_timeout;
 	
-	public COMMANDSession(Origin origin, Properties properties) {
-		m_origin 	 = origin;
+	public COMMANDSession(COMMANDSessionFactory factory, Origin origin, Properties properties) {
+		super(factory, origin);
 		m_properties = properties;
-		String to = m_properties.getProperty(PROPERTY_TIMEOUT, "30");
-		m_timeout = Long.parseLong(to);
+		m_timeout = Long.parseLong(m_properties.getProperty(
+				PROPERTY_TIMEOUT, "30"));
 	}
 	
 	private static enum Commands {
@@ -42,6 +42,7 @@ public class COMMANDSession implements Session<COMMANDSession> {
 		JOIN(IRCCode.JOIN, 2),
 		PART(IRCCode.PART, 2),
 		WHOIS(IRCCode.WHOIS, 2),
+		NICK(IRCCode.NICK, 2),
 		;
 		
 		public final IRCCode code;
@@ -54,11 +55,11 @@ public class COMMANDSession implements Session<COMMANDSession> {
 	}
 	
 	@Override
-	public int run(SessionManager<COMMANDSession> sessionManager) {
+	public void run() {
 		try {
 			Event<Monitor, IRCCode, IRCMessage> event;
-			while ((event = sessionManager.getEvent(m_timeout, TimeUnit.SECONDS)) 
-					!= null) {
+			
+			while ((event = getInputQueue().poll(m_timeout, TimeUnit.SECONDS)) != null) {
 				Monitor monitor = event.getSource();
 				IRCMessage message = event.getMessage();
 				Origin origin = message.getOrigin();
