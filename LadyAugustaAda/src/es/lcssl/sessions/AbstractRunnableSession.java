@@ -9,6 +9,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import es.lcssl.irc.protocol.Event;
 import es.lcssl.irc.protocol.IRCCode;
 import es.lcssl.irc.protocol.IRCMessage;
+import es.lcssl.irc.protocol.IrcSAP.Monitor;
 
 /**
  * @author lcu
@@ -22,7 +23,7 @@ extends AbstractSession<F, K, S>
 implements Runnable 
 {
 
-	protected BlockingQueue<Event<F, IRCCode, IRCMessage>> m_inputQueue;
+	protected BlockingQueue<Event<Monitor, IRCCode, IRCMessage>> m_inputQueue;
 	
 	/**
 	 * @param factory
@@ -30,15 +31,15 @@ implements Runnable
 	 */
 	protected AbstractRunnableSession(F factory, K key) {
 		super(factory, key);
-		m_inputQueue = new LinkedBlockingQueue<Event<F, IRCCode, IRCMessage>>();
+		m_inputQueue = new LinkedBlockingQueue<Event<Monitor, IRCCode, IRCMessage>>();
 	}
 
 	@Override
-	public void process(Event<F, IRCCode, IRCMessage> event) {
+	public void process(Event<Monitor, IRCCode, IRCMessage> event) {
 		m_inputQueue.add(event);
 	}
 	
-	public BlockingQueue<Event<F, IRCCode, IRCMessage>> getInputQueue() {
+	public BlockingQueue<Event<Monitor, IRCCode, IRCMessage>> getInputQueue() {
 		return m_inputQueue;
 	}
 }

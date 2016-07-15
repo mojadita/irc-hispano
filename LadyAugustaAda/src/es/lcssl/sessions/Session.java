@@ -4,6 +4,9 @@
 package es.lcssl.sessions;
 
 import es.lcssl.irc.protocol.Event;
+import es.lcssl.irc.protocol.IRCCode;
+import es.lcssl.irc.protocol.IRCMessage;
+import es.lcssl.irc.protocol.IrcSAP.Monitor;
 
 /**
  * A {@link Session} is a {@link Thread} with some specific inteface to be able
@@ -21,45 +24,27 @@ import es.lcssl.irc.protocol.Event;
  *
  */
 public interface Session<
-		SF extends SessionFactory<SF, SM, K, S>, 
-		SM extends SessionManager<SF, SM, K, S>, 
+		F extends Factory<F, K, S>, 
 		K extends Comparable<? super K>, 
-		S extends Session<SF, SM, K, S>> 
+		S extends Session<F, K, S>>
 {
 
 	/**
-	 * The method that executes while this {@link Session} is active. The
-	 * {@link Session} will be active for the whole duration of this method
-	 * execution and will die once the method finishes execution.
-	 * 
-	 * @param abstractSessionManager
-	 *            The {@link SessionManager} in charge of this {@link Session}.
-	 *            It uses the {@link SessionManager} to get access to the input
-	 *            events.
-	 * @return termination code for the {@link SessionManager}. What the
-	 *         {@link SessionManager} does with this code is implementation
-	 *         dependant.
-	 */
-	int run();
-
-	/**
+	 * Getter for the {@code K} {@code key} attribute.
 	 * @return the {@code K key} attribute for this {@link Session}.
 	 */
 	K getKey();
 
 	/**
-	 * @return the {@link SessionManager} controlling this {@link Session}.
+	 * Getter for the {@code F} {@code factory} attribute.
+	 * @return the reference to the {@link Factory} that created this {@link Session}.
 	 */
-	SM getSessionManager();
-	
-	/**
-	 * @param sessionManager the {@link SessionManager} to set the 
-	 * {@code sessionManager} attribute.
-	 */
-	void setSessionManager(SM sessionManager);
+	F getFactory();
 
 	/**
-	 * @return the reference to the {@link SessionFactory} that created this {@link Session}.
+	 * Method to process events comming from the Monitor event generator.
+	 * @param event
 	 */
-	SF getSessionFactory();
+	void process(Event<Monitor, IRCCode, IRCMessage> event);
+
 }

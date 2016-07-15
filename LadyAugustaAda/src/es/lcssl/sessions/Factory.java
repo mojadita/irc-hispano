@@ -4,16 +4,16 @@
 package es.lcssl.sessions;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
- * @author lcu
+ * @author Luis Colorado {@code <luiscoloradourcola@gmail.com>}
  *
  */
-public interface SessionFactory<
-		SF extends SessionFactory<SF,SM,K,S>, 
-		SM extends SessionManager<SF,SM,K,S>,
+public interface Factory<
+		F extends Factory<F, K, S>, 
 		K extends Comparable<? super K>, 
-		S extends Session<SF,SM,K,S>> 
+		S extends Session<F, K, S>> 
 {
 	
 	/**
@@ -36,11 +36,6 @@ public interface SessionFactory<
 	 * @return a {@link Collection} of the active {@link Session} at the time
 	 * of the call.
 	 */
-	Collection<S> getSessions();
-	
-	/**
-	 * @return the {@code SM} {@code sessionManagers} attribute.
-	 */
-	Collection<SM> getSessionManagers();
+	List<S> getSessions();
 
 }
